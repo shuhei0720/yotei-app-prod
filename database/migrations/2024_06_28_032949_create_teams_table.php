@@ -11,9 +11,18 @@ return new class extends Migration {
             $table->string('name');
             $table->timestamps();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('team_id')->nullable()->constrained()->onDelete('set null');
+        });
     }
 
     public function down() {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['team_id']);
+            $table->dropColumn('team_id');
+        });
+
         Schema::dropIfExists('teams');
     }
 };

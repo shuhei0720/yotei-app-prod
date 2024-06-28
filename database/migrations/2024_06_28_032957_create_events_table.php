@@ -9,9 +9,10 @@ return new class extends Migration {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // この行が既に存在する場合、追加のマイグレーションは不要
             $table->string('name');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->dateTime('start_datetime');
+            $table->dateTime('end_datetime');
             $table->timestamps();
         });
     }

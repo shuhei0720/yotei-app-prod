@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.dot {
+    background-color: #000;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    flex-shrink: 0;
+}
+
+.fc-event-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: calc(100% - 20px); /* Adjust to avoid overlapping with dot */
+    pointer-events: none;
+}
+
+.red-alert {
+    color: red;
+}
+
+/* fc-event-timeを非表示にする */
+.fc-event-time {
+    display: none;
+}
+
+/* カレンダーのクリックを防ぐためのオーバーレイ */
+#calendar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 49;
+    display: none;
+}
+
+/* 予定追加ポップアップを上に表示するためにz-indexを設定 */
+#eventModal {
+    z-index: 51;
+}
+
+#eventDetailModal {
+    z-index: 51;
+}
+
+#dayModal {
+    z-index: 50;
+}
+
+/* おしゃれなUI用の追加スタイル */
+.day-event {
+    transition: background-color 0.3s;
+    background-color: #f8f8f8; /* 背景色の設定 */
+}
+
+.day-event:hover {
+    background-color: #e2e8f0; /* ホバー時の背景色 */
+}
+
+.fc-daygrid-day:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+/* fc-eventクラス（カレンダーのイベント）のホバーを無効に */
+.fc-event:hover {
+    background-color: initial;
+}
+
+.fc-event {
+    cursor: default; /* ホバー効果を削除 */
+    pointer-events: none; /* クリック判定を無効にする */
+}

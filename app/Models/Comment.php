@@ -5,26 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Event extends Model
+class Comment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'team_id',
+        'event_id',
         'user_id',
-        'name',
-        'start_datetime',
-        'end_datetime',
-        'memo',
+        'content',
     ];
 
-    public function user()
-    {
+    public function user() {
         return $this->belongsTo(User::class);
     }
 
-    public function comments()
-    {
-        return $this->hasMany(Comment::class);
+    public function event() {
+        return $this->belongsTo(Event::class);
     }
 }
