@@ -11,6 +11,56 @@ use Illuminate\Support\Facades\Log;
 
 class TeamController extends Controller
 {
+    public function index() {
+        $team = Auth::user()->team;
+        if ($team) {
+            return redirect()->route('teams.show', $team->id);
+        }
+        return view('teams.index');
+    }
+
+    public function store(Request $request) {
+        $user = Auth::user();
+
+        if ($user->team) {
+            return redirect()->route('teams.index')->with('error', '1つのチームしか作成または参加できません。');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $team = Team::create(['name' => $request->name]);
+        $user->team_id = $team->id;
+        $user->save();
+
+        return redirect()->route('teams.show', $team->id);
+    }
+
+    public function join(Request $request) {
+        $user = Auth::user();
+
+        if ($user->team) {
+            return redirect()->route('teams.index')->with('error', '1つのチームしか作成または参加できません。');
+        }
+
+        $request->validate([
+            'team_id' => 'required|exists:teams,id',
+        ]);
+
+        $user->team_id = $request->team_id;
+        $user->save();
+
+        return redirect()->route('teams.show', $request->team_id);
+    }
+
+    public function leave() {
+        $user = Auth::user();
+        $user->team_id = null;
+        $user->save();
+
+        return redirect()->route('dashboard')->with('status', 'チームを離脱しました。');
+    }
     public function show(Team $team) {
         if (Auth::user()->team_id !== $team->id) {
             return redirect()->route('teams.show', Auth::user()->team_id);
