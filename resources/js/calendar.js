@@ -1,20 +1,20 @@
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import jaLocale from '@fullcalendar/core/locales/ja';  // 日本語ロケールのインポート
+import jaLocale from '@fullcalendar/core/locales/ja';
 
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var events = JSON.parse(calendarEl.dataset.events);
-    var currentDay = null; // 追加：現在開いている日付を保持
+    var currentDay = null;
+    var currentUserId = parseInt(calendarEl.dataset.currentUserId, 10);
 
-    // コンソール出力でデータを確認
     console.log('Events:', events);
 
     var calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
-        locale: jaLocale,  // ロケールを日本語に設定
+        locale: jaLocale,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -23,12 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonText: {
             today: '今日に戻る'
         },
-        events: events, // イベントデータを設定
+        events: events,
         dateClick: function(info) {
             openDayModal(info.dateStr);
         },
         eventClick: function(info) {
-            info.jsEvent.preventDefault(); // Prevent navigating to event details from calendar
+            info.jsEvent.preventDefault();
         },
         eventContent: function(arg) {
             let dot = `<div class="dot" style="background-color:${arg.event.extendedProps.color}; display: inline-block; margin-right: 5px;"></div>`;
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return { html: dot + `<span class="fc-event-title" style="pointer-events: none;">${title}</span>` };
         },
         dayCellDidMount: function(info) {
-            info.el.classList.add('hover:bg-gray-200', 'cursor-pointer'); // Add hover and cursor classes to the day cells
+            info.el.classList.add('hover:bg-gray-200', 'cursor-pointer');
         }
     });
     calendar.render();
@@ -60,15 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openDayModal(dateStr) {
-        currentDay = dateStr; // 追加：現在の日付を設定
+        currentDay = dateStr;
         const dayEvents = events.filter(event => event.start.startsWith(dateStr));
         const dayEventsContainer = document.getElementById('dayEventsContainer');
         dayEventsContainer.innerHTML = '';
 
-        console.log('Day Events:', dayEvents); // 追加：デバッグ用ログ
+        console.log('Day Events:', dayEvents);
 
         dayEvents.forEach(event => {
-            const user = event.extendedProps.user || 'Unknown';
+            const user = event.extendedProps.user || 'なし';
             const start = new Date(event.start);
             const end = event.end ? new Date(event.end) : null;
             const startHours = String(start.getHours()).padStart(2, '0');
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('dayModalDate').innerText = new Date(dateStr).toLocaleDateString();
         document.getElementById('dayModal').classList.remove('hidden');
-        document.getElementById('calendar-overlay').classList.remove('hidden'); // Show overlay to prevent calendar clicks
+        document.getElementById('calendar-overlay').classList.remove('hidden');
     }
 
     function openModal(dateStr = null) {
@@ -103,13 +103,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('openAddModalButton').addEventListener('click', function() {
-        openModal(currentDay); // 追加：現在開いている日付を渡す
+        openModal(currentDay);
     });
 
     function openEventModal(event) {
-        console.log('Event:', event); // イベントデータをコンソールに出力
+        console.log('Event:', event);
 
-        // 開始日時と終了日時をローカルタイムゾーンで表示するために調整
         const start = new Date(event.start);
         const end = event.end ? new Date(event.end) : null;
 
@@ -118,10 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventDetailEnd').innerText = end ? end.toLocaleString() : 'なし';
         document.getElementById('eventDetailMemo').innerText = event.extendedProps.memo || 'No memo';
 
-        // 作成者情報を追加
         document.getElementById('eventDetailCreatedBy').innerHTML = `<div class="dot" style="background-color:${event.extendedProps.created_by_color};"></div>${event.extendedProps.created_by}`;
 
-        // コメントを表示
         document.getElementById('eventDetailComments').innerHTML = '';
         if (event.extendedProps.comments && event.extendedProps.comments.length > 0) {
             event.extendedProps.comments.forEach(comment => {
@@ -133,11 +130,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('commentEventId').value = event.id;
         document.getElementById('eventDetailModal').classList.remove('hidden');
+
+        const isCreator = event.extendedProps.user_id === currentUserId;
+        console.log('Is Creator:', isCreator);
+        document.getElementById('editEventButton').classList.toggle('hidden', !isCreator);
+        document.getElementById('deleteEventButton').classList.toggle('hidden', !isCreator);
     }
 
     function closeDayModal() {
         document.getElementById('dayModal').classList.add('hidden');
-        document.getElementById('calendar-overlay').classList.add('hidden'); // Hide overlay to allow calendar clicks
+        document.getElementById('calendar-overlay').classList.add('hidden');
     }
 
     function closeModal() {
@@ -148,8 +150,56 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventDetailModal').classList.add('hidden');
     }
 
+    function openEditEventModal() {
+        const eventDetailModal = document.getElementById('eventDetailModal');
+        const editEventModal = document.getElementById('editEventModal');
+
+        const eventId = document.getElementById('commentEventId').value;
+        const event = events.find(event => event.id === parseInt(eventId));
+
+        if (event) {
+            document.getElementById('edit_name').value = event.title;
+            document.getElementById('edit_start_datetime').value = event.start;
+            document.getElementById('edit_end_datetime').value = event.end || '';
+            document.getElementById('edit_memo').value = event.extendedProps.memo || '';
+
+            document.getElementById('editEventForm').action = `/events/${event.id}`;
+            eventDetailModal.classList.add('hidden');
+            editEventModal.classList.remove('hidden');
+        }
+    }
+
+    function closeEditEventModal() {
+        const editEventModal = document.getElementById('editEventModal');
+        editEventModal.classList.add('hidden');
+    }
+
+    function deleteEvent() {
+        const eventId = document.getElementById('commentEventId').value;
+        fetch(`/events/${eventId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('削除に失敗しました。');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('削除中にエラーが発生しました。');
+        });
+    }
+
     window.openModal = openModal;
     window.closeDayModal = closeDayModal;
     window.closeModal = closeModal;
     window.closeEventModal = closeEventModal;
+    window.openEditEventModal = openEditEventModal;
+    window.closeEditEventModal = closeEditEventModal;
+    window.deleteEvent = deleteEvent;
 });

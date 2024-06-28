@@ -15,7 +15,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200 relative">
-                    <div id="calendar" data-events="{{ json_encode($events) }}"></div>
+                    <div id="calendar" data-events="{{ json_encode($events) }}" data-current-user-id="{{ Auth::id() }}"></div>
                     <div id="calendar-overlay" class="hidden"></div>
                 </div>
             </div>
@@ -58,7 +58,7 @@
             <p class="text-lg mb-2"><strong>イベント名:</strong> <span id="eventDetailName"></span></p>
             <p class="text-lg mb-2"><strong>開始日時:</strong> <span id="eventDetailStart"></span></p>
             <p class="text-lg mb-2"><strong>終了日時:</strong> <span id="eventDetailEnd"></span></p>
-            <p class="text-lg mb-2"><strong>作成者:</strong> <span id="eventDetailCreatedBy"></span></p> <!-- 位置変更 -->
+            <p class="text-lg mb-2"><strong>作成者:</strong> <span id="eventDetailCreatedBy"></span></p>
             <p class="text-lg mb-2"><strong>メモ:</strong> <span id="eventDetailMemo"></span></p>
             <h3 class="text-lg font-bold mt-4 mb-2">コメント</h3>
             <div id="eventDetailComments" class="mb-4 space-y-2"></div>
@@ -73,9 +73,41 @@
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">送信</button>
                 </div>
             </form>
-            <div class="flex justify-end mt-4">
+            <div class="flex justify-end mt-4 space-x-2">
+                <button type="button" id="editEventButton" onclick="openEditEventModal()" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 hidden">編集</button>
+                <button type="button" id="deleteEventButton" onclick="deleteEvent()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 hidden">削除</button>
                 <button type="button" onclick="closeEventModal()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">閉じる</button>
             </div>
+        </div>
+    </div>
+
+    <div id="editEventModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 hidden z-50">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+            <h2 class="text-xl font-bold mb-4">イベントを編集</h2>
+            <form id="editEventForm" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="mb-4">
+                    <label for="edit_name" class="block text-sm font-medium text-gray-700">イベント名</label>
+                    <input type="text" name="name" id="edit_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="edit_start_datetime" class="block text-sm font-medium text-gray-700">開始日時</label>
+                    <input type="datetime-local" name="start_datetime" id="edit_start_datetime" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="edit_end_datetime" class="block text-sm font-medium text-gray-700">終了日時</label>
+                    <input type="datetime-local" name="end_datetime" id="edit_end_datetime" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="edit_memo" class="block text-sm font-medium text-gray-700">メモ</label>
+                    <textarea name="memo" id="edit_memo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="closeEditEventModal()" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">キャンセル</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">保存</button>
+                </div>
+            </form>
         </div>
     </div>
 

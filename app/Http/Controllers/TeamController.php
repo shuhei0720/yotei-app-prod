@@ -61,6 +61,7 @@ class TeamController extends Controller
 
         return redirect()->route('dashboard')->with('status', 'チームを離脱しました。');
     }
+
     public function show(Team $team) {
         if (Auth::user()->team_id !== $team->id) {
             return redirect()->route('teams.show', Auth::user()->team_id);
@@ -75,17 +76,18 @@ class TeamController extends Controller
                 'end' => $event->end_datetime,
                 'extendedProps' => [
                     'color' => $user->color,
-                    'user' => $user->name, // 追加
+                    'user' => $user->name,
+                    'user_id' => $user->id, // 追加
                     'memo' => $event->memo,
                     'comments' => $event->comments->map(function ($comment) {
                         return [
                             'content' => $comment->content,
                             'user' => $comment->user->name,
-                            'user_color' => $comment->user->color // 追加
+                            'user_color' => $comment->user->color
                         ];
                     }),
-                    'created_by' => $user->name, // 追加
-                    'created_by_color' => $user->color // 追加
+                    'created_by' => $user->name,
+                    'created_by_color' => $user->color
                 ]
             ];
         })->toArray();
