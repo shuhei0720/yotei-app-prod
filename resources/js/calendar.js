@@ -77,9 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 return { domNodes: [dayEl] };
+            } else {
+                // 週表示と日表示では日付を非表示にする
+                return { domNodes: [] };
             }
-            // 週表示と日表示では日付を非表示にする
-            return { domNodes: [] };
         }
     });
     calendar.render();

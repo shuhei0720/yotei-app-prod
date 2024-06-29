@@ -195,7 +195,12 @@
     padding-bottom: 2px;
 }
 
-/* 週表示の日付を小さくする */
+/* 週表示と日表示のスタイルを調整 */
+.fc-view-timeGridWeek .fc-daygrid-day-number,
+.fc-view-timeGridDay .fc-daygrid-day-number {
+    display: none;
+}
+
 .fc-col-header-cell-cushion {
-    font-size: 10px;
+    font-size: 10px; /* 週表示の日付を小さくする */
 }
