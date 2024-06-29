@@ -51,10 +51,6 @@
     z-index: 51;
 }
 
-#editEventModal {
-    z-index: 52;
-}
-
 #dayModal {
     z-index: 50;
 }
@@ -82,8 +78,4 @@
 .fc-event {
     cursor: default; /* ホバー効果を削除 */
     pointer-events: none; /* クリック判定を無効にする */
-}
-
-.fc-daygrid-day-number {
-    text-align: left;
 }

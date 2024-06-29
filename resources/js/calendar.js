@@ -1,20 +1,42 @@
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import jaLocale from '@fullcalendar/core/locales/ja';
+import jaLocale from '@fullcalendar/core/locales/ja';  // 日本語ロケールのインポート
+import { between } from 'holiday-jp';  // holiday-jpのインポート
 
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var events = JSON.parse(calendarEl.dataset.events);
-    var currentDay = null;
-    var currentUserId = parseInt(calendarEl.dataset.currentUserId, 10);
+    var currentDay = null; // 追加：現在開いている日付を保持
 
+    // コンソール出力でデータを確認
     console.log('Events:', events);
+
+    // 祝日を追加する関数
+    function addJapaneseHolidaysToEvents(events) {
+        const year = new Date().getFullYear();
+        const holidays = between(new Date(year, 0, 1), new Date(year, 11, 31));
+        holidays.forEach(holiday => {
+            events.push({
+                title: holiday.name,
+                start: holiday.date.toISOString().split('T')[0],
+                color: 'red',
+                allDay: true,
+                extendedProps: {
+                    created_by: 'なし',  // 作成者を「なし」に設定
+                    created_by_color: 'transparent'  // 色を透明に設定
+                }
+            });
+        });
+        return events;
+    }
+
+    events = addJapaneseHolidaysToEvents(events); // 祝日をイベントに追加
 
     var calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
-        locale: jaLocale,
+        locale: jaLocale,  // ロケールを日本語に設定
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -23,12 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonText: {
             today: '今日に戻る'
         },
-        events: events,
+        events: events, // イベントデータを設定
         dateClick: function(info) {
             openDayModal(info.dateStr);
         },
         eventClick: function(info) {
-            info.jsEvent.preventDefault();
+            info.jsEvent.preventDefault(); // Prevent navigating to event details from calendar
         },
         eventContent: function(arg) {
             let dot = `<div class="dot" style="background-color:${arg.event.extendedProps.color}; display: inline-block; margin-right: 5px;"></div>`;
@@ -39,7 +61,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return { html: dot + `<span class="fc-event-title" style="pointer-events: none;">${title}</span>` };
         },
         dayCellDidMount: function(info) {
-            info.el.classList.add('hover:bg-gray-200', 'cursor-pointer');
+            const dayEl = info.el.querySelector('.fc-daygrid-day-number');
+            if (dayEl) {
+                dayEl.innerHTML = dayEl.innerHTML.replace('日', ''); // 「日」を削除
+                const date = new Date(info.date);
+                if (date.getDay() === 0) {
+                    dayEl.style.color = 'red'; // 日曜日
+                } else if (date.getDay() === 6) {
+                    dayEl.style.color = 'blue'; // 土曜日
+                }
+            }
+            info.el.classList.add('hover:bg-gray-200', 'cursor-pointer'); // Add hover and cursor classes to the day cells
         }
     });
     calendar.render();
@@ -60,15 +92,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openDayModal(dateStr) {
-        currentDay = dateStr;
+        currentDay = dateStr; // 追加：現在の日付を設定
         const dayEvents = events.filter(event => event.start.startsWith(dateStr));
         const dayEventsContainer = document.getElementById('dayEventsContainer');
         dayEventsContainer.innerHTML = '';
 
-        console.log('Day Events:', dayEvents);
+        console.log('Day Events:', dayEvents); // 追加：デバッグ用ログ
 
         dayEvents.forEach(event => {
-            const user = event.extendedProps.user || 'なし';
+            const extendedProps = event.extendedProps || {}; // extendedPropsがない場合のデフォルト値を設定
+            const user = extendedProps.user || 'なし'; // 作成者がいない場合は「なし」を表示
             const start = new Date(event.start);
             const end = event.end ? new Date(event.end) : null;
             const startHours = String(start.getHours()).padStart(2, '0');
@@ -77,8 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const endMinutes = end ? String(end.getMinutes()).padStart(2, '0') : '';
             const timeRange = end ? `${startHours}:${startMinutes} - ${endHours}:${endMinutes}` : `${startHours}:${startMinutes}`;
 
-            const dot = `<div class="dot" style="background-color:${event.extendedProps.color}; display: inline-block; margin-right: 5px;"></div>`;
-            const alert = event.extendedProps.comments && event.extendedProps.comments.length > 0 ? `<span class="red-alert">⚠️</span> ` : '';
+            const dot = `<div class="dot" style="background-color:${extendedProps.color || 'transparent'}; display: inline-block; margin-right: 5px;"></div>`;
+            const alert = extendedProps.comments && extendedProps.comments.length > 0 ? `<span class="red-alert">⚠️</span> ` : '';
 
             const eventElement = document.createElement('div');
             eventElement.classList.add('day-event', 'bg-gray-100', 'p-2', 'mb-2', 'rounded', 'cursor-pointer', 'hover:bg-gray-200');
@@ -89,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('dayModalDate').innerText = new Date(dateStr).toLocaleDateString();
         document.getElementById('dayModal').classList.remove('hidden');
-        document.getElementById('calendar-overlay').classList.remove('hidden');
+        document.getElementById('calendar-overlay').classList.remove('hidden'); // Show overlay to prevent calendar clicks
     }
 
     function openModal(dateStr = null) {
@@ -103,12 +136,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('openAddModalButton').addEventListener('click', function() {
-        openModal(currentDay);
+        openModal(currentDay); // 追加：現在開いている日付を渡す
     });
 
     function openEventModal(event) {
-        console.log('Event:', event);
+        console.log('Event:', event); // イベントデータをコンソールに出力
 
+        // 開始日時と終了日時をローカルタイムゾーンで表示するために調整
         const start = new Date(event.start);
         const end = event.end ? new Date(event.end) : null;
 
@@ -117,8 +151,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventDetailEnd').innerText = end ? end.toLocaleString() : 'なし';
         document.getElementById('eventDetailMemo').innerText = event.extendedProps.memo || 'No memo';
 
-        document.getElementById('eventDetailCreatedBy').innerHTML = `<div class="dot" style="background-color:${event.extendedProps.created_by_color};"></div>${event.extendedProps.created_by}`;
+        // 作成者情報を追加
+        const createdBy = event.extendedProps.created_by || 'なし'; // 作成者がいない場合は「なし」を表示
+        const createdByColor = event.extendedProps.created_by_color || 'transparent'; // デフォルトの色を設定
 
+        document.getElementById('eventDetailCreatedBy').innerHTML = `<div class="dot" style="background-color:${createdByColor};"></div>${createdBy}`;
+
+        // コメントを表示
         document.getElementById('eventDetailComments').innerHTML = '';
         if (event.extendedProps.comments && event.extendedProps.comments.length > 0) {
             event.extendedProps.comments.forEach(comment => {
@@ -130,16 +169,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('commentEventId').value = event.id;
         document.getElementById('eventDetailModal').classList.remove('hidden');
-
-        const isCreator = event.extendedProps.user_id === currentUserId;
-        console.log('Is Creator:', isCreator);
-        document.getElementById('editEventButton').classList.toggle('hidden', !isCreator);
-        document.getElementById('deleteEventButton').classList.toggle('hidden', !isCreator);
     }
 
     function closeDayModal() {
         document.getElementById('dayModal').classList.add('hidden');
-        document.getElementById('calendar-overlay').classList.add('hidden');
+        document.getElementById('calendar-overlay').classList.add('hidden'); // Hide overlay to allow calendar clicks
     }
 
     function closeModal() {
@@ -150,56 +184,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventDetailModal').classList.add('hidden');
     }
 
-    function openEditEventModal() {
-        const eventDetailModal = document.getElementById('eventDetailModal');
-        const editEventModal = document.getElementById('editEventModal');
-
-        const eventId = document.getElementById('commentEventId').value;
-        const event = events.find(event => event.id === parseInt(eventId));
-
-        if (event) {
-            document.getElementById('edit_name').value = event.title;
-            document.getElementById('edit_start_datetime').value = event.start;
-            document.getElementById('edit_end_datetime').value = event.end || '';
-            document.getElementById('edit_memo').value = event.extendedProps.memo || '';
-
-            document.getElementById('editEventForm').action = `/events/${event.id}`;
-            eventDetailModal.classList.add('hidden');
-            editEventModal.classList.remove('hidden');
-        }
-    }
-
-    function closeEditEventModal() {
-        const editEventModal = document.getElementById('editEventModal');
-        editEventModal.classList.add('hidden');
-    }
-
-    function deleteEvent() {
-        const eventId = document.getElementById('commentEventId').value;
-        fetch(`/events/${eventId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('削除に失敗しました。');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('削除中にエラーが発生しました。');
-        });
-    }
-
     window.openModal = openModal;
     window.closeDayModal = closeDayModal;
     window.closeModal = closeModal;
     window.closeEventModal = closeEventModal;
-    window.openEditEventModal = openEditEventModal;
-    window.closeEditEventModal = closeEditEventModal;
-    window.deleteEvent = deleteEvent;
 });
