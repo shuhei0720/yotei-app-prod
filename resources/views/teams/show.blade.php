@@ -132,7 +132,12 @@
             return response.json();
         })
         .then(data => {
-            window.location.reload(); // ページをリロードしてカレンダーを更新
+            if (data.status === 'success') {
+                closeModal();
+                window.location.reload(); // ページをリロードしてカレンダーを更新
+            } else {
+                throw new Error(data.message);
+            }
         })
         .catch(error => {
             alert('Error: ' + error.message);

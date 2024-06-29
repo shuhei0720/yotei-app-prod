@@ -7,29 +7,17 @@ import { between } from 'holiday-jp';
 import { format, parseISO } from 'date-fns';
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM Content Loaded");
-
     var calendarEl = document.getElementById('calendar');
-    if (!calendarEl) {
-        console.error("Calendar element not found");
-        return;
-    }
-    console.log("Calendar element found:", calendarEl);
+    if (!calendarEl) return;
 
     var events = JSON.parse(calendarEl.dataset.events || '[]');
     var currentDay = null;
 
     function addJapaneseHolidaysToEvents(events) {
-        console.log("Adding Japanese holidays to events");
         const year = new Date().getFullYear();
         const holidays = between(new Date(year, 0, 1), new Date(year, 11, 31));
         holidays.forEach(holiday => {
-            const holidayDate = holiday.date;
-            console.log("Original holiday date:", holidayDate);
-
-            const formattedDate = format(holidayDate, 'yyyy-MM-dd');
-            console.log("Formatted holiday date:", formattedDate);
-
+            const formattedDate = format(holiday.date, 'yyyy-MM-dd');
             events.push({
                 title: holiday.name,
                 start: formattedDate,
@@ -60,15 +48,16 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         events: events.map(event => ({
             ...event,
-            allDay: event.allDay // 全てのイベントにallDayプロパティを追加
+            allDay: event.allDay
         })),
+        eventDisplay: 'block', // For better visibility of events
+        dayMaxEvents: true, // For "more" link when too many events
         dateClick: function(info) {
-            console.log("Date clicked:", info.dateStr);
             openDayModal(info.dateStr);
         },
         eventClick: function(info) {
-            console.log("Event clicked:", info.event);
             info.jsEvent.preventDefault();
+            openEventModal(info.event);
         },
         eventContent: function(arg) {
             let dot = `<div class="dot" style="background-color:${arg.event.extendedProps.color}; display: inline-block; margin-right: 5px;"></div>`;
@@ -81,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
         dayCellContent: function(arg) {
             if (calendar.view.type === 'dayGridMonth') {
                 arg.dayNumberText = '';
-
                 const date = new Date(arg.date);
                 const dayNumber = date.getDate();
                 const dayEl = document.createElement('a');
@@ -92,20 +80,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (date.getDay() === 6) {
                     dayEl.style.color = 'blue';
                 }
-
                 return { domNodes: [dayEl] };
             } else {
                 return { domNodes: [] };
             }
-        }
+        },
+        slotEventOverlap: false, // Prevent event overlap in week and day views
+        allDaySlot: true, // Enable the all-day slot in week and day views
+        slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false }, // 24-hour format
+        scrollTime: '06:00:00', // Start scrolling from 6 AM
+        nowIndicator: true // Show current time indicator
     });
     calendar.render();
-    console.log("Calendar rendered");
 
     var nameInput = document.getElementById('name');
     if (nameInput) {
         nameInput.addEventListener('input', function() {
-            console.log("Name input changed:", nameInput.value);
             fetch('/events/names?q=' + nameInput.value)
                 .then(response => response.json())
                 .then(data => {
@@ -120,8 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
         });
-    } else {
-        console.error("Name input element not found");
     }
 
     function openDayModal(dateStr) {
@@ -155,8 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('dayModalDate').innerText = new Date(dateStr).toLocaleDateString();
             document.getElementById('dayModal').classList.remove('hidden');
             document.getElementById('calendar-overlay').classList.remove('hidden');
-        } else {
-            console.error("Day events container not found");
         }
     }
 
@@ -222,37 +208,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const startInput = document.getElementById('start_datetime');
         const endInput = document.getElementById('end_datetime');
 
-        console.log("All Day checkbox changed:", this.checked);
-
         if (this.checked) {
             const date = new Date(startInput.value);
             const startDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0));
             const endDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59));
-
-            console.log("Start Date (All Day):", startDate);
-            console.log("End Date (All Day):", endDate);
 
             startInput.value = startDate.toISOString().slice(0, 16);
             endInput.value = endDate.toISOString().slice(0, 16);
             startInput.disabled = true;
             endInput.disabled = true;
         } else {
-            console.log("All Day Unchecked");
             startInput.disabled = false;
             endInput.disabled = false;
         }
     });
 
-    function prepareForm() {
-        const allDay = document.getElementById('all_day').checked;
-        const formData = new FormData(document.getElementById('eventForm'));
-        formData.set('all_day', allDay ? 'true' : 'false');
-        console.log("Form Data Before Submit:", Object.fromEntries(formData.entries()));
-    }
-
     window.openModal = openModal;
     window.closeDayModal = closeDayModal;
     window.closeModal = closeModal;
     window.closeEventModal = closeEventModal;
-    window.prepareForm = prepareForm;
 });
