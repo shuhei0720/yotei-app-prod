@@ -93,6 +93,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     calendar.render();
 
+    // 予定の数に応じて枠の高さを調整
+    function adjustDayCellHeights() {
+        if (window.innerWidth <= 768) { // スマホサイズ
+            const dayCells = document.querySelectorAll('.fc-daygrid-day');
+            dayCells.forEach(cell => {
+                const events = cell.querySelectorAll('.fc-daygrid-event');
+                if (events.length > 4) {
+                    cell.style.height = `${events.length * 20}px`; // 予定の数に応じて高さを調整
+                } else {
+                    cell.style.height = 'auto';
+                }
+            });
+        }
+    }
+
+    adjustDayCellHeights(); // 初期読み込み時に実行
+    window.addEventListener('resize', adjustDayCellHeights); // リサイズ時に実行
+    calendar.on('eventsSet', adjustDayCellHeights); // イベントがセットされた後に実行
+
     var nameInput = document.getElementById('name');
     if (nameInput) {
         nameInput.addEventListener('input', function() {

@@ -98,15 +98,17 @@
     }
 
     .fc .fc-daygrid-day-number {
-        font-size: 14px;
+        font-size: 12px; /* 日付のフォントサイズを小さくする */
+        padding: 0; /* 余白を削減 */
     }
 
     .fc-daygrid-event .fc-event-title {
-        font-size: 10px;
+        font-size: 10px; /* イベントタイトルのフォントサイズを小さくする */
     }
 
     .fc-daygrid-event {
-        font-size: 10px;
+        font-size: 10px; /* イベントのフォントサイズを小さくする */
+        margin: 0; /* イベントのマージンを削減 */
     }
 
     .fc-scrollgrid {
@@ -167,6 +169,26 @@
 
     .bg-white.shadow .flex, nav.bg-white .flex {
         height: 100%;
+    }
+
+    .fc .fc-daygrid-day-frame {
+        padding-top: 0; /* 元の値を小さくする */
+        padding-bottom: 0; /* 元の値を小さくする */
+        min-height: 40px; /* 最小の高さを設定 */
+        height: auto; /* 高さを自動調整 */
+    }
+
+    .fc .fc-daygrid-day-events {
+        max-height: none; /* 高さ制限を解除 */
+        overflow: visible; /* オーバーフローを表示 */
+    }
+
+    .fc .fc-daygrid-day-top {
+        padding: 0; /* 上部の余白を削減 */
+    }
+
+    .fc .fc-daygrid-day-bottom {
+        margin: 0; /* 下部の余白を削減 */
     }
 }
 
