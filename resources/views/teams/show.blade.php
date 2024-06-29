@@ -1,21 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center flex-wrap">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <div class="flex justify-between items-center flex-wrap header">
+            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center flex-grow"> <!-- サイズを大きく -->
                 {{ $team->name }}
             </h2>
-            <form method="POST" action="{{ route('teams.leave') }}">
+            <form method="POST" action="{{ route('teams.leave') }}" class="mt-2 sm:mt-0 flex-shrink-0">
                 @csrf
-                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mt-2 sm:mt-0">チームを離脱</button>
+                <button type="submit" class="bg-red-500 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600">チームを離脱</button>
             </form>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-0"> <!-- この行のpaddingを0に -->
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200 relative">
-                    <div id="calendar" data-events="{{ json_encode($events) }}"></div>
+                <div class="p-4 bg-white border-b border-gray-200 relative"> <!-- paddingを縮小 -->
+                    <div id="calendar" class="calendar-container" data-events="{{ json_encode($events) }}"></div>
                     <div id="calendar-overlay" class="hidden"></div>
                 </div>
             </div>

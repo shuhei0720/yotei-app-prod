@@ -1,5 +1,6 @@
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import jaLocale from '@fullcalendar/core/locales/ja';
 import { between } from 'holiday-jp';
@@ -32,13 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
     events = addJapaneseHolidaysToEvents(events);
 
     var calendar = new Calendar(calendarEl, {
-        plugins: [dayGridPlugin, interactionPlugin],
+        plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         locale: jaLocale,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,dayGridWeek,dayGridDay'
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         buttonText: {
             today: '今日に戻る'
@@ -58,28 +59,27 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return { html: dot + `<span class="fc-event-title" style="pointer-events: none;">${title}</span>` };
         },
-        dayCellDidMount: function(info) {
-            const dayEl = info.el.querySelector('.fc-daygrid-day-number');
-            const bgEl = info.el.querySelector('.fc-daygrid-day-bg');
-            if (dayEl && bgEl) {
-                const date = new Date(info.date);
-                const dayNumber = date.getDate(); // 日付を取得
-                dayEl.innerHTML = dayNumber; // 日付を設定し、不要な要素を削除
-                const bgColor = window.getComputedStyle(bgEl).backgroundColor;
-                dayEl.style.backgroundColor = bgColor;
+        dayCellContent: function(arg) {
+            if (calendar.view.type === 'dayGridMonth') {
+                // デフォルトの日付表示を削除
+                arg.dayNumberText = '';
+
+                // カスタム日付表示を追加
+                const date = new Date(arg.date);
+                const dayNumber = date.getDate();
+                const dayEl = document.createElement('a');
+                dayEl.classList.add('fc-daygrid-day-number');
+                dayEl.innerText = dayNumber;
                 if (date.getDay() === 0) {
                     dayEl.style.color = 'red';
                 } else if (date.getDay() === 6) {
                     dayEl.style.color = 'blue';
                 }
-                // 今日の日付を強調表示
-                const today = new Date();
-                if (date.toDateString() === today.toDateString()) {
-                    dayEl.style.backgroundColor = bgColor; // 背景色を統一
-                    dayEl.style.color = 'black';
-                }
+
+                return { domNodes: [dayEl] };
             }
-            info.el.classList.add('hover:bg-gray-200', 'cursor-pointer');
+            // 週表示と日表示では日付を非表示にする
+            return { domNodes: [] };
         }
     });
     calendar.render();
