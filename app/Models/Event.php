@@ -16,6 +16,7 @@ class Event extends Model
         'start_datetime',
         'end_datetime',
         'memo',
+        'all_day'
     ];
 
     public function user()

@@ -4,21 +4,35 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import jaLocale from '@fullcalendar/core/locales/ja';
 import { between } from 'holiday-jp';
+import { format, parseISO } from 'date-fns';
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM Content Loaded");
+
     var calendarEl = document.getElementById('calendar');
-    var events = JSON.parse(calendarEl.dataset.events);
+    if (!calendarEl) {
+        console.error("Calendar element not found");
+        return;
+    }
+    console.log("Calendar element found:", calendarEl);
+
+    var events = JSON.parse(calendarEl.dataset.events || '[]');
     var currentDay = null;
 
-    console.log('Events:', events);
-
     function addJapaneseHolidaysToEvents(events) {
+        console.log("Adding Japanese holidays to events");
         const year = new Date().getFullYear();
         const holidays = between(new Date(year, 0, 1), new Date(year, 11, 31));
         holidays.forEach(holiday => {
+            const holidayDate = holiday.date;
+            console.log("Original holiday date:", holidayDate);
+
+            const formattedDate = format(holidayDate, 'yyyy-MM-dd');
+            console.log("Formatted holiday date:", formattedDate);
+
             events.push({
                 title: holiday.name,
-                start: holiday.date.toISOString().split('T')[0],
+                start: formattedDate,
                 color: 'red',
                 allDay: true,
                 extendedProps: {
@@ -44,11 +58,16 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonText: {
             today: '今日に戻る'
         },
-        events: events,
+        events: events.map(event => ({
+            ...event,
+            allDay: event.allDay // 全てのイベントにallDayプロパティを追加
+        })),
         dateClick: function(info) {
+            console.log("Date clicked:", info.dateStr);
             openDayModal(info.dateStr);
         },
         eventClick: function(info) {
+            console.log("Event clicked:", info.event);
             info.jsEvent.preventDefault();
         },
         eventContent: function(arg) {
@@ -61,10 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         dayCellContent: function(arg) {
             if (calendar.view.type === 'dayGridMonth') {
-                // デフォルトの日付表示を削除
                 arg.dayNumberText = '';
 
-                // カスタム日付表示を追加
                 const date = new Date(arg.date);
                 const dayNumber = date.getDate();
                 const dayEl = document.createElement('a');
@@ -78,60 +95,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 return { domNodes: [dayEl] };
             } else {
-                // 週表示と日表示では日付を非表示にする
                 return { domNodes: [] };
             }
         }
     });
     calendar.render();
+    console.log("Calendar rendered");
 
     var nameInput = document.getElementById('name');
-    nameInput.addEventListener('input', function() {
-        fetch('/events/names?q=' + nameInput.value)
-            .then(response => response.json())
-            .then(data => {
-                var datalist = document.getElementById('event-names');
-                datalist.innerHTML = '';
-                data.forEach(function(item) {
-                    var option = document.createElement('option');
-                    option.value = item;
-                    datalist.appendChild(option);
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            console.log("Name input changed:", nameInput.value);
+            fetch('/events/names?q=' + nameInput.value)
+                .then(response => response.json())
+                .then(data => {
+                    var datalist = document.getElementById('event-names');
+                    if (datalist) {
+                        datalist.innerHTML = '';
+                        data.forEach(function(item) {
+                            var option = document.createElement('option');
+                            option.value = item;
+                            datalist.appendChild(option);
+                        });
+                    }
                 });
-            });
-    });
+        });
+    } else {
+        console.error("Name input element not found");
+    }
 
     function openDayModal(dateStr) {
         currentDay = dateStr;
         const dayEvents = events.filter(event => event.start.startsWith(dateStr));
         const dayEventsContainer = document.getElementById('dayEventsContainer');
-        dayEventsContainer.innerHTML = '';
+        if (dayEventsContainer) {
+            dayEventsContainer.innerHTML = '';
 
-        console.log('Day Events:', dayEvents);
+            dayEvents.forEach(event => {
+                const extendedProps = event.extendedProps || {};
+                const user = extendedProps.user || 'なし';
+                const start = new Date(event.start);
+                const end = event.end ? new Date(event.end) : null;
+                const startHours = String(start.getHours()).padStart(2, '0');
+                const startMinutes = String(start.getMinutes()).padStart(2, '0');
+                const endHours = end ? String(end.getHours()).padStart(2, '0') : '';
+                const endMinutes = end ? String(end.getMinutes()).padStart(2, '0') : '';
+                const timeRange = end ? `${startHours}:${startMinutes} - ${endHours}:${endMinutes}` : `${startHours}:${startMinutes}`;
 
-        dayEvents.forEach(event => {
-            const extendedProps = event.extendedProps || {};
-            const user = extendedProps.user || 'なし';
-            const start = new Date(event.start);
-            const end = event.end ? new Date(event.end) : null;
-            const startHours = String(start.getHours()).padStart(2, '0');
-            const startMinutes = String(start.getMinutes()).padStart(2, '0');
-            const endHours = end ? String(end.getHours()).padStart(2, '0') : '';
-            const endMinutes = end ? String(end.getMinutes()).padStart(2, '0') : '';
-            const timeRange = end ? `${startHours}:${startMinutes} - ${endHours}:${endMinutes}` : `${startHours}:${startMinutes}`;
+                const dot = `<div class="dot" style="background-color:${extendedProps.color || 'transparent'}; display: inline-block; margin-right: 5px;"></div>`;
+                const alert = extendedProps.comments && extendedProps.comments.length > 0 ? `<span class="red-alert">⚠️</span> ` : '';
 
-            const dot = `<div class="dot" style="background-color:${extendedProps.color || 'transparent'}; display: inline-block; margin-right: 5px;"></div>`;
-            const alert = extendedProps.comments && extendedProps.comments.length > 0 ? `<span class="red-alert">⚠️</span> ` : '';
+                const eventElement = document.createElement('div');
+                eventElement.classList.add('day-event', 'bg-gray-100', 'p-2', 'mb-2', 'rounded', 'cursor-pointer', 'hover:bg-gray-200');
+                eventElement.innerHTML = `${dot}<strong>${alert}${event.title}</strong> (${timeRange}, ${user})`;
+                eventElement.addEventListener('click', () => openEventModal(event));
+                dayEventsContainer.appendChild(eventElement);
+            });
 
-            const eventElement = document.createElement('div');
-            eventElement.classList.add('day-event', 'bg-gray-100', 'p-2', 'mb-2', 'rounded', 'cursor-pointer', 'hover:bg-gray-200');
-            eventElement.innerHTML = `${dot}<strong>${alert}${event.title}</strong> (${timeRange}, ${user})`;
-            eventElement.addEventListener('click', () => openEventModal(event));
-            dayEventsContainer.appendChild(eventElement);
-        });
-
-        document.getElementById('dayModalDate').innerText = new Date(dateStr).toLocaleDateString();
-        document.getElementById('dayModal').classList.remove('hidden');
-        document.getElementById('calendar-overlay').classList.remove('hidden');
+            document.getElementById('dayModalDate').innerText = new Date(dateStr).toLocaleDateString();
+            document.getElementById('dayModal').classList.remove('hidden');
+            document.getElementById('calendar-overlay').classList.remove('hidden');
+        } else {
+            console.error("Day events container not found");
+        }
     }
 
     function openModal(dateStr = null) {
@@ -149,8 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openEventModal(event) {
-        console.log('Event:', event);
-
         const start = new Date(event.start);
         const end = event.end ? new Date(event.end) : null;
 
@@ -164,13 +188,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('eventDetailCreatedBy').innerHTML = `<div class="dot" style="background-color:${createdByColor};"></div>${createdBy}`;
 
-        document.getElementById('eventDetailComments').innerHTML = '';
-        if (event.extendedProps.comments && event.extendedProps.comments.length > 0) {
-            event.extendedProps.comments.forEach(comment => {
-                const commentEl = document.createElement('div');
-                commentEl.innerHTML = `<div class="dot" style="background-color:${comment.user_color};"></div><strong>${comment.user}:</strong> ${comment.content}`;
-                document.getElementById('eventDetailComments').appendChild(commentEl);
-            });
+        const eventDetailComments = document.getElementById('eventDetailComments');
+        if (eventDetailComments) {
+            eventDetailComments.innerHTML = '';
+            if (event.extendedProps.comments && event.extendedProps.comments.length > 0) {
+                event.extendedProps.comments.forEach(comment => {
+                    const commentEl = document.createElement('div');
+                    commentEl.innerHTML = `<div class="dot" style="background-color:${comment.user_color};"></div><strong>${comment.user}:</strong> ${comment.content}`;
+                    eventDetailComments.appendChild(commentEl);
+                });
+            }
         }
 
         document.getElementById('commentEventId').value = event.id;
@@ -189,6 +216,32 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeEventModal() {
         document.getElementById('eventDetailModal').classList.add('hidden');
     }
+
+    // 終日イベントの処理
+    document.getElementById('all_day').addEventListener('change', function() {
+        const startInput = document.getElementById('start_datetime');
+        const endInput = document.getElementById('end_datetime');
+
+        console.log("All Day checkbox changed:", this.checked);
+
+        if (this.checked) {
+            const date = new Date(startInput.value);
+            const startDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0));
+            const endDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59));
+
+            console.log("Start Date (All Day):", startDate);
+            console.log("End Date (All Day):", endDate);
+
+            startInput.value = startDate.toISOString().slice(0, 16);
+            endInput.value = endDate.toISOString().slice(0, 16);
+            startInput.disabled = true;
+            endInput.disabled = true;
+        } else {
+            console.log("All Day Unchecked");
+            startInput.disabled = false;
+            endInput.disabled = false;
+        }
+    });
 
     window.openModal = openModal;
     window.closeDayModal = closeDayModal;

@@ -41,6 +41,10 @@
                     <input type="datetime-local" name="end_datetime" id="end_datetime" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 </div>
                 <div class="mb-4">
+                    <input type="checkbox" name="all_day" id="all_day">
+                    <label for="all_day" class="text-sm font-medium text-gray-700">終日</label>
+                </div>
+                <div class="mb-4">
                     <label for="memo" class="block text-sm font-medium text-gray-700">メモ</label>
                     <textarea name="memo" id="memo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
                 </div>
