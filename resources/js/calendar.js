@@ -4,11 +4,15 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import jaLocale from '@fullcalendar/core/locales/ja';
 import { between } from 'holiday-jp';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM content loaded');
     var calendarEl = document.getElementById('calendar');
-    if (!calendarEl) return;
+    if (!calendarEl) {
+        console.error('Calendar element not found');
+        return;
+    }
 
     var events = JSON.parse(calendarEl.dataset.events || '[]');
     var currentDay = null;
@@ -53,10 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDisplay: 'block', // For better visibility of events
         dayMaxEvents: true, // For "more" link when too many events
         dateClick: function(info) {
+            console.log('dateClick event triggered:', info);
             openDayModal(info.dateStr);
         },
         eventClick: function(info) {
             info.jsEvent.preventDefault();
+            console.log('eventClick event triggered:', info);
             openEventModal(info.event);
         },
         eventContent: function(arg) {
@@ -89,12 +95,19 @@ document.addEventListener('DOMContentLoaded', function() {
         allDaySlot: true, // Enable the all-day slot in week and day views
         slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false }, // 24-hour format
         scrollTime: '06:00:00', // Start scrolling from 6 AM
-        nowIndicator: true // Show current time indicator
+        nowIndicator: true, // Show current time indicator
+        selectable: true,
+        select: function(info) {
+            console.log('select event triggered:', info);
+            openDayModal(info.startStr);
+        }
     });
     calendar.render();
+    console.log('Calendar rendered');
 
     // 予定の数に応じて枠の高さを調整
     function adjustDayCellHeights() {
+        console.log('Adjusting day cell heights');
         if (window.innerWidth <= 768) { // スマホサイズ
             const dayCells = document.querySelectorAll('.fc-daygrid-day');
             dayCells.forEach(cell => {
@@ -132,8 +145,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openDayModal(dateStr) {
-        currentDay = dateStr;
-        const dayEvents = events.filter(event => event.start.startsWith(dateStr));
+        console.log('openDayModal called with dateStr:', dateStr);
+        currentDay = dateStr.split('T')[0]; // 日付部分だけを取得
+        const dayEvents = events.filter(event => event.start.startsWith(currentDay));
+        console.log('Filtered day events:', dayEvents);
         const dayEventsContainer = document.getElementById('dayEventsContainer');
         if (dayEventsContainer) {
             dayEventsContainer.innerHTML = '';
@@ -159,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dayEventsContainer.appendChild(eventElement);
             });
 
-            document.getElementById('dayModalDate').innerText = new Date(dateStr).toLocaleDateString();
+            document.getElementById('dayModalDate').innerText = new Date(currentDay).toLocaleDateString();
             document.getElementById('dayModal').classList.remove('hidden');
             document.getElementById('calendar-overlay').classList.remove('hidden');
         }
@@ -180,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openEventModal(event) {
+        console.log('openEventModal called with event:', event);
         const start = new Date(event.start);
         const end = event.end ? new Date(event.end) : null;
 
@@ -222,7 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventDetailModal').classList.add('hidden');
     }
 
-    // 終日イベントの処理
     document.getElementById('all_day').addEventListener('change', function() {
         const startInput = document.getElementById('start_datetime');
         const endInput = document.getElementById('end_datetime');
