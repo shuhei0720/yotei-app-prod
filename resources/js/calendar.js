@@ -1,18 +1,16 @@
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import jaLocale from '@fullcalendar/core/locales/ja';  // 日本語ロケールのインポート
-import { between } from 'holiday-jp';  // holiday-jpのインポート
+import jaLocale from '@fullcalendar/core/locales/ja';
+import { between } from 'holiday-jp';
 
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var events = JSON.parse(calendarEl.dataset.events);
-    var currentDay = null; // 追加：現在開いている日付を保持
+    var currentDay = null;
 
-    // コンソール出力でデータを確認
     console.log('Events:', events);
 
-    // 祝日を追加する関数
     function addJapaneseHolidaysToEvents(events) {
         const year = new Date().getFullYear();
         const holidays = between(new Date(year, 0, 1), new Date(year, 11, 31));
@@ -23,20 +21,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 color: 'red',
                 allDay: true,
                 extendedProps: {
-                    created_by: 'なし',  // 作成者を「なし」に設定
-                    created_by_color: 'transparent'  // 色を透明に設定
+                    created_by: 'なし',
+                    created_by_color: 'transparent'
                 }
             });
         });
         return events;
     }
 
-    events = addJapaneseHolidaysToEvents(events); // 祝日をイベントに追加
+    events = addJapaneseHolidaysToEvents(events);
 
     var calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
-        locale: jaLocale,  // ロケールを日本語に設定
+        locale: jaLocale,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -45,12 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonText: {
             today: '今日に戻る'
         },
-        events: events, // イベントデータを設定
+        events: events,
         dateClick: function(info) {
             openDayModal(info.dateStr);
         },
         eventClick: function(info) {
-            info.jsEvent.preventDefault(); // Prevent navigating to event details from calendar
+            info.jsEvent.preventDefault();
         },
         eventContent: function(arg) {
             let dot = `<div class="dot" style="background-color:${arg.event.extendedProps.color}; display: inline-block; margin-right: 5px;"></div>`;
@@ -62,16 +60,26 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         dayCellDidMount: function(info) {
             const dayEl = info.el.querySelector('.fc-daygrid-day-number');
-            if (dayEl) {
-                dayEl.innerHTML = dayEl.innerHTML.replace('日', ''); // 「日」を削除
+            const bgEl = info.el.querySelector('.fc-daygrid-day-bg');
+            if (dayEl && bgEl) {
                 const date = new Date(info.date);
+                const dayNumber = date.getDate(); // 日付を取得
+                dayEl.innerHTML = dayNumber; // 日付を設定し、不要な要素を削除
+                const bgColor = window.getComputedStyle(bgEl).backgroundColor;
+                dayEl.style.backgroundColor = bgColor;
                 if (date.getDay() === 0) {
-                    dayEl.style.color = 'red'; // 日曜日
+                    dayEl.style.color = 'red';
                 } else if (date.getDay() === 6) {
-                    dayEl.style.color = 'blue'; // 土曜日
+                    dayEl.style.color = 'blue';
+                }
+                // 今日の日付を強調表示
+                const today = new Date();
+                if (date.toDateString() === today.toDateString()) {
+                    dayEl.style.backgroundColor = bgColor; // 背景色を統一
+                    dayEl.style.color = 'black';
                 }
             }
-            info.el.classList.add('hover:bg-gray-200', 'cursor-pointer'); // Add hover and cursor classes to the day cells
+            info.el.classList.add('hover:bg-gray-200', 'cursor-pointer');
         }
     });
     calendar.render();
@@ -92,16 +100,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openDayModal(dateStr) {
-        currentDay = dateStr; // 追加：現在の日付を設定
+        currentDay = dateStr;
         const dayEvents = events.filter(event => event.start.startsWith(dateStr));
         const dayEventsContainer = document.getElementById('dayEventsContainer');
         dayEventsContainer.innerHTML = '';
 
-        console.log('Day Events:', dayEvents); // 追加：デバッグ用ログ
+        console.log('Day Events:', dayEvents);
 
         dayEvents.forEach(event => {
-            const extendedProps = event.extendedProps || {}; // extendedPropsがない場合のデフォルト値を設定
-            const user = extendedProps.user || 'なし'; // 作成者がいない場合は「なし」を表示
+            const extendedProps = event.extendedProps || {};
+            const user = extendedProps.user || 'なし';
             const start = new Date(event.start);
             const end = event.end ? new Date(event.end) : null;
             const startHours = String(start.getHours()).padStart(2, '0');
@@ -122,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('dayModalDate').innerText = new Date(dateStr).toLocaleDateString();
         document.getElementById('dayModal').classList.remove('hidden');
-        document.getElementById('calendar-overlay').classList.remove('hidden'); // Show overlay to prevent calendar clicks
+        document.getElementById('calendar-overlay').classList.remove('hidden');
     }
 
     function openModal(dateStr = null) {
@@ -136,13 +144,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('openAddModalButton').addEventListener('click', function() {
-        openModal(currentDay); // 追加：現在開いている日付を渡す
+        openModal(currentDay);
     });
 
     function openEventModal(event) {
-        console.log('Event:', event); // イベントデータをコンソールに出力
+        console.log('Event:', event);
 
-        // 開始日時と終了日時をローカルタイムゾーンで表示するために調整
         const start = new Date(event.start);
         const end = event.end ? new Date(event.end) : null;
 
@@ -151,13 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventDetailEnd').innerText = end ? end.toLocaleString() : 'なし';
         document.getElementById('eventDetailMemo').innerText = event.extendedProps.memo || 'No memo';
 
-        // 作成者情報を追加
-        const createdBy = event.extendedProps.created_by || 'なし'; // 作成者がいない場合は「なし」を表示
-        const createdByColor = event.extendedProps.created_by_color || 'transparent'; // デフォルトの色を設定
+        const createdBy = event.extendedProps.created_by || 'なし';
+        const createdByColor = event.extendedProps.created_by_color || 'transparent';
 
         document.getElementById('eventDetailCreatedBy').innerHTML = `<div class="dot" style="background-color:${createdByColor};"></div>${createdBy}`;
 
-        // コメントを表示
         document.getElementById('eventDetailComments').innerHTML = '';
         if (event.extendedProps.comments && event.extendedProps.comments.length > 0) {
             event.extendedProps.comments.forEach(comment => {
@@ -173,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function closeDayModal() {
         document.getElementById('dayModal').classList.add('hidden');
-        document.getElementById('calendar-overlay').classList.add('hidden'); // Hide overlay to allow calendar clicks
+        document.getElementById('calendar-overlay').classList.add('hidden');
     }
 
     function closeModal() {

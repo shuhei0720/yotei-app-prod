@@ -58,7 +58,7 @@
             <p class="text-lg mb-2"><strong>イベント名:</strong> <span id="eventDetailName"></span></p>
             <p class="text-lg mb-2"><strong>開始日時:</strong> <span id="eventDetailStart"></span></p>
             <p class="text-lg mb-2"><strong>終了日時:</strong> <span id="eventDetailEnd"></span></p>
-            <p class="text-lg mb-2"><strong>作成者:</strong> <span id="eventDetailCreatedBy"></span></p> <!-- 位置変更 -->
+            <p class="text-lg mb-2"><strong>作成者:</strong> <span id="eventDetailCreatedBy"></span></p>
             <p class="text-lg mb-2"><strong>メモ:</strong> <span id="eventDetailMemo"></span></p>
             <h3 class="text-lg font-bold mt-4 mb-2">コメント</h3>
             <div id="eventDetailComments" class="mb-4 space-y-2"></div>

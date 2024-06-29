@@ -17,7 +17,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
-    max-width: calc(100% - 20px); /* Adjust to avoid overlapping with dot */
+    max-width: calc(100% - 20px);
     pointer-events: none;
 }
 
@@ -25,12 +25,10 @@
     color: red;
 }
 
-/* fc-event-timeを非表示にする */
 .fc-event-time {
     display: none;
 }
 
-/* カレンダーのクリックを防ぐためのオーバーレイ */
 #calendar-overlay {
     position: fixed;
     top: 0;
@@ -42,7 +40,6 @@
     display: none;
 }
 
-/* 予定追加ポップアップを上に表示するためにz-indexを設定 */
 #eventModal {
     z-index: 51;
 }
@@ -55,14 +52,13 @@
     z-index: 50;
 }
 
-/* おしゃれなUI用の追加スタイル */
 .day-event {
     transition: background-color 0.3s;
-    background-color: #f8f8f8; /* 背景色の設定 */
+    background-color: #f8f8f8;
 }
 
 .day-event:hover {
-    background-color: #e2e8f0; /* ホバー時の背景色 */
+    background-color: #e2e8f0;
 }
 
 .fc-daygrid-day:hover {
@@ -70,12 +66,20 @@
     cursor: pointer;
 }
 
-/* fc-eventクラス（カレンダーのイベント）のホバーを無効に */
 .fc-event:hover {
     background-color: initial;
 }
 
 .fc-event {
-    cursor: default; /* ホバー効果を削除 */
-    pointer-events: none; /* クリック判定を無効にする */
+    cursor: default;
+    pointer-events: none;
+}
+
+.fc-daygrid-day-number {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    color: inherit;
+    display: inline-block;
+    width: 100%;
 }
