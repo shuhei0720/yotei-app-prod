@@ -243,8 +243,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    function prepareForm() {
+        const allDay = document.getElementById('all_day').checked;
+        const formData = new FormData(document.getElementById('eventForm'));
+        formData.set('all_day', allDay ? 'true' : 'false');
+        console.log("Form Data Before Submit:", Object.fromEntries(formData.entries()));
+    }
+
     window.openModal = openModal;
     window.closeDayModal = closeDayModal;
     window.closeModal = closeModal;
     window.closeEventModal = closeEventModal;
+    window.prepareForm = prepareForm;
 });

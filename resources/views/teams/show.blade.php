@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center flex-wrap header">
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center flex-grow"> <!-- サイズを大きく -->
+            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center flex-grow">
                 {{ $team->name }}
             </h2>
             <form method="POST" action="{{ route('teams.leave') }}" class="mt-2 sm:mt-0 flex-shrink-0">
@@ -11,10 +11,10 @@
         </div>
     </x-slot>
 
-    <div class="py-0"> <!-- この行のpaddingを0に -->
+    <div class="py-0">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-4 bg-white border-b border-gray-200 relative"> <!-- paddingを縮小 -->
+                <div class="p-4 bg-white border-b border-gray-200 relative">
                     <div id="calendar" class="calendar-container" data-events="{{ json_encode($events) }}"></div>
                     <div id="calendar-overlay" class="hidden"></div>
                 </div>
@@ -30,15 +30,15 @@
                 <input type="hidden" name="team_id" value="{{ $team->id }}">
                 <div class="mb-4">
                     <label for="name" class="block text-sm font-medium text-gray-700">イベント名</label>
-                    <input type="text" name="name" id="name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" list="event-names">
+                    <input type="text" name="name" id="name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" list="event-names" required>
                 </div>
                 <div class="mb-4">
                     <label for="start_datetime" class="block text-sm font-medium text-gray-700">開始日時</label>
-                    <input type="datetime-local" name="start_datetime" id="start_datetime" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="datetime-local" name="start_datetime" id="start_datetime" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
                 <div class="mb-4">
                     <label for="end_datetime" class="block text-sm font-medium text-gray-700">終了日時</label>
-                    <input type="datetime-local" name="end_datetime" id="end_datetime" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="datetime-local" name="end_datetime" id="end_datetime" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
                 <div class="mb-4">
                     <input type="checkbox" name="all_day" id="all_day">
@@ -98,3 +98,48 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/calendar.js'])
 </x-app-layout>
+
+<script>
+    document.getElementById('eventForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // デフォルトのフォーム送信を防止
+        const formData = new FormData(event.target);
+        const allDay = document.getElementById('all_day').checked;
+
+        if (allDay) {
+            const startInput = document.getElementById('start_datetime');
+            const endInput = document.getElementById('end_datetime');
+            const date = new Date(startInput.value);
+            const startDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0));
+            const endDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59));
+            formData.set('start_datetime', startDate.toISOString().slice(0, 16));
+            formData.set('end_datetime', endDate.toISOString().slice(0, 16));
+            formData.set('all_day', 'true');
+        } else {
+            formData.set('all_day', 'false');
+        }
+
+        fetch("{{ route('events.store') }}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': formData.get('_token')
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(data => {
+            window.location.reload(); // ページをリロードしてカレンダーを更新
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
+    });
+
+    function closeModal() {
+        document.getElementById('eventModal').classList.add('hidden');
+    }
+</script>
