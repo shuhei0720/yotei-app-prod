@@ -23,7 +23,12 @@ class TeamController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $team = Team::create(['name' => $request->name]);
+        $teamId = $this->generateUniqueTeamId();
+
+        $team = Team::create([
+            'team_id' => $teamId,
+            'name' => $request->name,
+        ]);
         $user->teams()->attach($team->id);
 
         return redirect()->route('teams.show', $team->id);
@@ -33,22 +38,24 @@ class TeamController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'team_id' => 'required|exists:teams,id',
+            'team_id' => 'required|exists:teams,team_id',
         ]);
 
-        $user->teams()->attach($request->team_id);
+        $team = Team::where('team_id', $request->team_id)->first();
+        $user->teams()->attach($team->id);
 
-        return redirect()->route('teams.show', $request->team_id);
+        return redirect()->route('teams.show', $team->id);
     }
 
     public function leave(Request $request) {
         $user = Auth::user();
 
         $request->validate([
-            'team_id' => 'required|exists:teams,id',
+            'team_id' => 'required|exists:teams,team_id',
         ]);
 
-        $user->teams()->detach($request->team_id);
+        $team = Team::where('team_id', $request->team_id)->first();
+        $user->teams()->detach($team->id);
 
         return redirect()->route('dashboard')->with('status', 'チームを離脱しました。');
     }
@@ -85,5 +92,13 @@ class TeamController extends Controller
         Log::info('Events: ' . json_encode($events));
 
         return view('teams.show', compact('team', 'events'));
+    }
+
+    private function generateUniqueTeamId() {
+        do {
+            $teamId = random_int(1000, 9999);
+        } while (Team::where('team_id', $teamId)->exists());
+
+        return $teamId;
     }
 }

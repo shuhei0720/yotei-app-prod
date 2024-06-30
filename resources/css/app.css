@@ -86,6 +86,7 @@
 }
 
 /* スマホ用スタイル */
+/* スマホ用スタイル */
 @media (max-width: 768px) {
     .fc-toolbar-title {
         font-size: 10px;
@@ -184,6 +185,22 @@
 
     .fc .fc-daygrid-day-bottom {
         margin: 0; /* 下部の余白を削減 */
+    }
+
+    /* ヘッダーの文字サイズを大きくして中央に配置する */
+    header.bg-white.shadow h2 {
+        font-size: 25px; /* 文字サイズを大きくする */
+        padding: 10px 0;
+    }
+
+    /* ナビゲーションメニューの幅を調整する */
+    nav.bg-white {
+        width: 100%; /* 幅を100%に設定 */
+    }
+
+    nav.bg-white .max-w-7xl {
+        max-width: 100%; /* 必要に応じて幅を調整 */
+        padding: 10px 10px;
     }
 }
 

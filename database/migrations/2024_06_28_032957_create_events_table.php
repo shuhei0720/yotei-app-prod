@@ -9,11 +9,13 @@ return new class extends Migration {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // この行が既に存在する場合、追加のマイグレーションは不要
+            $table->foreignId('user_id')->constrained()->onDelete('cascade')->nullable();
             $table->string('name');
             $table->dateTime('start_datetime');
             $table->dateTime('end_datetime');
             $table->timestamps();
+            $table->text('memo')->nullable(); // memoカラムを追加
+            $table->boolean('all_day')->default(false); // all_dayカラムを追加
         });
     }
 

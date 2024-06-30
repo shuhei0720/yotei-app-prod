@@ -3,18 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Family Schedule App</title>
+    <title>Yoteiapp</title>
     @vite('resources/css/app.css')
+
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#000000">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/path/to/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/path/to/icon-512x512.png">
+
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Raleway:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f0f4f8;
+            font-family: 'Raleway', sans-serif;
+            overflow: hidden;
+        }
+        .logo {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+        .welcome-text {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 40px; /* Increase margin bottom for more space */
+            color: #4a90e2;
+            font-family: 'Pacifico', cursive;
+        }
+        .welcome-text span {
+            color: #e94e77;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .button {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.25rem;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #357ab7;
+        }
+        .button.register {
+            background-color: #5cb85c;
+        }
+        .button.register:hover {
+            background-color: #4cae4c;
+        }
+    </style>
 </head>
 <body>
-    <div class="min-h-screen flex items-center justify-center">
-        <div class="text-center p-4">
-            <h1 class="text-3xl sm:text-5xl font-bold mb-8">Welcome to the Family Schedule App</h1>
-            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <a href="{{ route('login') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Login</a>
-                <a href="{{ route('register') }}" class="bg-green-500 text-white px-4 py-2 rounded">Register</a>
-            </div>
+    <div class="min-h-screen flex flex-col items-center justify-center text-center p-4">
+        <img src="/path/to/icon-192x192.png" alt="App Icon" class="logo">
+        <div class="welcome-text">Welcome to <span>Yoteiapp</span></div>
+        <div class="button-container">
+            <a href="{{ route('login') }}" class="button">ログイン</a>
+            <a href="{{ route('register') }}" class="button register">新規登録</a>
         </div>
     </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(error) {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

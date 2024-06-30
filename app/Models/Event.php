@@ -16,16 +16,18 @@ class Event extends Model
         'start_datetime',
         'end_datetime',
         'memo',
-        'all_day'
+        'all_day',
     ];
 
-    public function user()
-    {
+    public function team() {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function user() {
         return $this->belongsTo(User::class);
     }
 
-    public function comments()
-    {
+    public function comments() {
         return $this->hasMany(Comment::class);
     }
 }

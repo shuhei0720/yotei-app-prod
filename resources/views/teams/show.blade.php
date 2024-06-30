@@ -1,18 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center flex-wrap header">
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center flex-grow">
-                {{ $team->name }}
+        <div class="flex justify-center items-center flex-wrap header">
+            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center flex items-center space-x-2">
+                <span class="bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm font-semibold">チームID: {{ $team->team_id }}</span>
+                <span class="text-lg font-bold text-blue-600">{{ $team->name }}</span>
             </h2>
-            <form method="POST" action="{{ route('teams.leave') }}" class="mt-2 sm:mt-0 flex-shrink-0">
-                @csrf
-                <input type="hidden" name="team_id" value="{{ $team->id }}">
-                <button type="submit" class="bg-red-500 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600">チームを離脱</button>
-            </form>
         </div>
     </x-slot>
 
-    <div class="py-0">
+    <div class="py-0" style="padding:1px 0">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-4 bg-white border-b border-gray-200 relative">

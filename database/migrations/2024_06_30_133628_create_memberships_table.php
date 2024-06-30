@@ -12,18 +12,9 @@ class CreateMembershipsTable extends Migration {
             $table->foreignId('team_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['team_id']);
-            $table->dropColumn('team_id');
-        });
     }
 
     public function down() {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('team_id')->nullable()->constrained()->onDelete('set null');
-        });
-
         Schema::dropIfExists('memberships');
     }
 }
