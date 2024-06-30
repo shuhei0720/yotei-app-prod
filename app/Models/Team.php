@@ -12,7 +12,7 @@ class Team extends Model
     protected $fillable = ['name'];
 
     public function members() {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class, 'memberships');
     }
 
     public function events() {

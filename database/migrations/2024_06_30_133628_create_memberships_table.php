@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+class CreateMembershipsTable extends Migration {
     public function up() {
         Schema::create('memberships', function (Blueprint $table) {
             $table->id();
@@ -12,9 +12,18 @@ return new class extends Migration {
             $table->foreignId('team_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['team_id']);
+            $table->dropColumn('team_id');
+        });
     }
 
     public function down() {
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('team_id')->nullable()->constrained()->onDelete('set null');
+        });
+
         Schema::dropIfExists('memberships');
     }
-};
+}

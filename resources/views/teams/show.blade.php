@@ -6,6 +6,7 @@
             </h2>
             <form method="POST" action="{{ route('teams.leave') }}" class="mt-2 sm:mt-0 flex-shrink-0">
                 @csrf
+                <input type="hidden" name="team_id" value="{{ $team->id }}">
                 <button type="submit" class="bg-red-500 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600">チームを離脱</button>
             </form>
         </div>

@@ -26,6 +26,25 @@
                             </div>
                         </form>
                     </div>
+
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-4">Your Teams</h3>
+                        @foreach(Auth::user()->teams as $team)
+                            <a href="{{ route('teams.show', $team->id) }}" class="block mb-4 p-4 border rounded shadow-sm transition duration-300 ease-in-out transform hover:bg-blue-50 hover:shadow-md">
+                                <div>
+                                    <span class="text-blue-500 font-semibold">{{ $team->id }} : {{ $team->name }}</span>
+                                </div>
+                                <div class="mt-2 flex flex-wrap">
+                                    @foreach($team->members as $member)
+                                        <div class="mr-4 flex items-center">
+                                            <span class="w-4 h-4 rounded-full" style="background-color: {{ $member->color }};"></span>
+                                            <span class="ml-2">{{ $member->name }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>

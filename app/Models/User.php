@@ -15,7 +15,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'color', // colorカラムをfillableに追加
+        'color',
     ];
 
     protected $hidden = [
@@ -31,12 +31,16 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function ($user) {
-            $user->color = $user->generateColor(); // ユーザー作成時に色を生成
+            $user->color = $user->generateColor();
         });
     }
 
     public function generateColor() {
         $colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF33A8', '#FFD700', '#FF4500', '#ADFF2F', '#7FFF00', '#7B68EE'];
         return $colors[array_rand($colors)];
+    }
+
+    public function teams() {
+        return $this->belongsToMany(Team::class, 'memberships');
     }
 }
