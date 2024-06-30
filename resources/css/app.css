@@ -190,6 +190,10 @@
     .fc .fc-daygrid-day-bottom {
         margin: 0; /* 下部の余白を削減 */
     }
+
+    .profile-section {
+        margin-bottom: 1rem;
+    }
 }
 
 .fc-header-toolbar {
