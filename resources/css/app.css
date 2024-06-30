@@ -145,11 +145,6 @@
         font-size: 14px;
     }
 
-    .bg-white.shadow, nav.bg-white {
-        height: 40px;
-        line-height: 40px;
-    }
-
     .bg-white.shadow .h2, nav.bg-white .h2 {
         font-size: 14px;
     }
@@ -189,10 +184,6 @@
 
     .fc .fc-daygrid-day-bottom {
         margin: 0; /* 下部の余白を削減 */
-    }
-
-    .profile-section {
-        margin-bottom: 1rem;
     }
 }
 
