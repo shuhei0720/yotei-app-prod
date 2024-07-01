@@ -184,17 +184,24 @@
         });
     });
 
-    function closeModal() {
-        document.getElementById('eventModal').classList.add('hidden');
-    }
-
-    function closeEditModal() {
-        document.getElementById('editEventModal').classList.add('hidden');
-    }
-
     document.getElementById('editEventForm').addEventListener('submit', function(event) {
         event.preventDefault();
         const formData = new FormData(event.target);
+        const allDay = document.getElementById('edit_all_day').checked;
+
+        if (allDay) {
+            const startInput = document.getElementById('edit_start_datetime');
+            const endInput = document.getElementById('edit_end_datetime');
+            const date = new Date(startInput.value);
+            const startDate = moment.tz(date, 'Asia/Tokyo').startOf('day').toDate();
+            const endDate = moment.tz(date, 'Asia/Tokyo').endOf('day').toDate();
+            formData.set('start_datetime', moment(startDate).format('YYYY-MM-DDTHH:mm'));
+            formData.set('end_datetime', moment(endDate).format('YYYY-MM-DDTHH:mm'));
+            formData.set('all_day', 'true');
+        } else {
+            formData.set('all_day', 'false');
+        }
+
         const eventId = formData.get('event_id');
         fetch("{{ route('events.update', '') }}/" + eventId, {
             method: 'POST',
@@ -224,6 +231,27 @@
             alert('エラー: ' + error.message);
         });
     });
+
+    function openModal(dateStr = null) {
+        console.log("openModal called with dateStr:", dateStr);
+        const now = dateStr ? moment.tz(dateStr, 'Asia/Tokyo').toDate() : moment.tz('Asia/Tokyo').toDate();
+        console.log("current datetime in Asia/Tokyo:", now);
+        const formattedDate = moment(now).format('YYYY-MM-DDTHH:mm');
+        console.log("formatted datetime:", formattedDate);
+
+        document.getElementById('start_datetime').value = formattedDate;
+        document.getElementById('end_datetime').value = formattedDate;
+        document.getElementById('eventModal').classList.remove('hidden');
+        document.getElementById('name').focus();
+    }
+
+    function closeModal() {
+        document.getElementById('eventModal').classList.add('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editEventModal').classList.add('hidden');
+    }
 
     function openEditModal() {
         document.getElementById('editEventModal').classList.remove('hidden');
