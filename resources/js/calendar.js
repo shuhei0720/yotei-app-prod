@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         slotEventOverlap: false,
-        allDaySlot: true,
+        allDaySlot: false,
         slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
         scrollTime: '06:00:00',
         nowIndicator: true,
