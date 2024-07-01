@@ -5,12 +5,11 @@ import interactionPlugin from '@fullcalendar/interaction';
 import jaLocale from '@fullcalendar/core/locales/ja';
 import { between } from 'holiday-jp';
 import { format } from 'date-fns';
+import moment from 'moment-timezone';
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM content loaded');
     var calendarEl = document.getElementById('calendar');
     if (!calendarEl) {
-        console.error('Calendar element not found');
         return;
     }
 
@@ -42,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         locale: jaLocale,
+        timeZone: 'Asia/Tokyo',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -54,15 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
             ...event,
             allDay: event.allDay
         })),
-        eventDisplay: 'block', // For better visibility of events
-        dayMaxEvents: true, // For "more" link when too many events
+        eventDisplay: 'block',
+        dayMaxEvents: true,
         dateClick: function(info) {
-            console.log('dateClick event triggered:', info);
             openDayModal(info.dateStr);
         },
         eventClick: function(info) {
             info.jsEvent.preventDefault();
-            console.log('eventClick event triggered:', info);
             openEventModal(info.event);
         },
         eventContent: function(arg) {
@@ -91,29 +89,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { domNodes: [] };
             }
         },
-        slotEventOverlap: false, // Prevent event overlap in week and day views
-        allDaySlot: true, // Enable the all-day slot in week and day views
-        slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false }, // 24-hour format
-        scrollTime: '06:00:00', // Start scrolling from 6 AM
-        nowIndicator: true, // Show current time indicator
+        slotEventOverlap: false,
+        allDaySlot: true,
+        slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
+        scrollTime: '06:00:00',
+        nowIndicator: true,
         selectable: true,
         select: function(info) {
-            console.log('select event triggered:', info);
             openDayModal(info.startStr);
         }
     });
     calendar.render();
-    console.log('Calendar rendered');
 
-    // 予定の数に応じて枠の高さを調整
     function adjustDayCellHeights() {
-        console.log('Adjusting day cell heights');
-        if (window.innerWidth <= 768) { // スマホサイズ
+        if (window.innerWidth <= 768) {
             const dayCells = document.querySelectorAll('.fc-daygrid-day');
             dayCells.forEach(cell => {
                 const events = cell.querySelectorAll('.fc-daygrid-event');
                 if (events.length > 4) {
-                    cell.style.height = `${events.length * 20}px`; // 予定の数に応じて高さを調整
+                    cell.style.height = `${events.length * 20}px`;
                 } else {
                     cell.style.height = 'auto';
                 }
@@ -121,9 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    adjustDayCellHeights(); // 初期読み込み時に実行
-    window.addEventListener('resize', adjustDayCellHeights); // リサイズ時に実行
-    calendar.on('eventsSet', adjustDayCellHeights); // イベントがセットされた後に実行
+    adjustDayCellHeights();
+    window.addEventListener('resize', adjustDayCellHeights);
+    calendar.on('eventsSet', adjustDayCellHeights);
 
     var nameInput = document.getElementById('name');
     if (nameInput) {
@@ -145,10 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openDayModal(dateStr) {
-        console.log('openDayModal called with dateStr:', dateStr);
-        currentDay = dateStr.split('T')[0]; // 日付部分だけを取得
+        currentDay = dateStr.split('T')[0];
         const dayEvents = events.filter(event => event.start.startsWith(currentDay));
-        console.log('Filtered day events:', dayEvents);
         const dayEventsContainer = document.getElementById('dayEventsContainer');
         if (dayEventsContainer) {
             dayEventsContainer.innerHTML = '';
@@ -156,8 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
             dayEvents.forEach(event => {
                 const extendedProps = event.extendedProps || {};
                 const user = extendedProps.user || 'なし';
-                const start = new Date(event.start);
-                const end = event.end ? new Date(event.end) : null;
+                const start = moment.tz(event.start, 'Asia/Tokyo').toDate();
+                const end = event.end ? moment.tz(event.end, 'Asia/Tokyo').toDate() : null;
                 const startHours = String(start.getHours()).padStart(2, '0');
                 const startMinutes = String(start.getMinutes()).padStart(2, '0');
                 const endHours = end ? String(end.getHours()).padStart(2, '0') : '';
@@ -174,15 +166,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 dayEventsContainer.appendChild(eventElement);
             });
 
-            document.getElementById('dayModalDate').innerText = new Date(currentDay).toLocaleDateString();
+            document.getElementById('dayModalDate').innerText = moment.tz(currentDay, 'Asia/Tokyo').format('YYYY/MM/DD');
             document.getElementById('dayModal').classList.remove('hidden');
             document.getElementById('calendar-overlay').classList.remove('hidden');
         }
     }
 
     function openModal(dateStr = null) {
-        const now = dateStr ? new Date(dateStr) : new Date();
-        const formattedDate = now.toISOString().slice(0, 16);
+        console.log("openModal called with dateStr:", dateStr);
+        const now = dateStr ? moment.tz(dateStr, 'Asia/Tokyo').toDate() : moment.tz('Asia/Tokyo').toDate();
+        console.log("current datetime in Asia/Tokyo:", now);
+        const formattedDate = moment(now).format('YYYY-MM-DDTHH:mm');
+        console.log("formatted datetime:", formattedDate);
 
         document.getElementById('start_datetime').value = formattedDate;
         document.getElementById('end_datetime').value = formattedDate;
@@ -195,13 +190,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openEventModal(event) {
-        console.log('openEventModal called with event:', event);
-        const start = new Date(event.start);
-        const end = event.end ? new Date(event.end) : null;
+        const start = moment.tz(event.start, 'Asia/Tokyo').toDate();
+        const end = event.end ? moment.tz(event.end, 'Asia/Tokyo').toDate() : null;
 
         document.getElementById('eventDetailName').innerText = event.title;
-        document.getElementById('eventDetailStart').innerText = start.toLocaleString();
-        document.getElementById('eventDetailEnd').innerText = end ? end.toLocaleString() : 'なし';
+        document.getElementById('eventDetailStart').innerText = moment(start).format('YYYY/MM/DD HH:mm');
+        document.getElementById('eventDetailStart').setAttribute('data-datetime', moment(start).format('YYYY-MM-DDTHH:mm'));
+        document.getElementById('eventDetailEnd').innerText = end ? moment(end).format('YYYY/MM/DD HH:mm') : 'なし';
+        if (end) {
+            document.getElementById('eventDetailEnd').setAttribute('data-datetime', moment(end).format('YYYY-MM-DDTHH:mm'));
+        }
         document.getElementById('eventDetailMemo').innerText = event.extendedProps.memo || 'No memo';
 
         const createdBy = event.extendedProps.created_by || 'なし';
@@ -234,6 +232,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventModal').classList.add('hidden');
     }
 
+    function closeEditModal() {
+        document.getElementById('editEventModal').classList.add('hidden');
+    }
+
     function closeEventModal() {
         document.getElementById('eventDetailModal').classList.add('hidden');
     }
@@ -244,11 +246,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (this.checked) {
             const date = new Date(startInput.value);
-            const startDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0));
-            const endDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59));
+            const startDate = moment.tz(date, 'Asia/Tokyo').startOf('day').toDate();
+            const endDate = moment.tz(date, 'Asia/Tokyo').endOf('day').toDate();
 
-            startInput.value = startDate.toISOString().slice(0, 16);
-            endInput.value = endDate.toISOString().slice(0, 16);
+            startInput.value = moment(startDate).format('YYYY-MM-DDTHH:mm');
+            endInput.value = moment(endDate).format('YYYY-MM-DDTHH:mm');
+            startInput.disabled = true;
+            endInput.disabled = true;
+        } else {
+            startInput.disabled = false;
+            endInput.disabled = false;
+        }
+    });
+
+    document.getElementById('edit_all_day').addEventListener('change', function() {
+        const startInput = document.getElementById('edit_start_datetime');
+        const endInput = document.getElementById('edit_end_datetime');
+
+        if (this.checked) {
+            const date = new Date(startInput.value);
+            const startDate = moment.tz(date, 'Asia/Tokyo').startOf('day').toDate();
+            const endDate = moment.tz(date, 'Asia/Tokyo').endOf('day').toDate();
+
+            startInput.value = moment(startDate).format('YYYY-MM-DDTHH:mm');
+            endInput.value = moment(endDate).format('YYYY-MM-DDTHH:mm');
             startInput.disabled = true;
             endInput.disabled = true;
         } else {
