@@ -32,11 +32,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                             @foreach (Auth::user()->teams as $team)
                                 <div class="block bg-gray-100 p-4 rounded-lg shadow hover:bg-gray-200 transition relative">
-                                    <a href="{{ route('teams.show', $team->id) }}" class="absolute inset-0 z-10"></a>
+                                    <a href="{{ route('teams.show', $team->id) }}" class="block absolute inset-0 z-10"></a>
                                     <div class="flex items-center justify-between relative z-20">
                                         <div class="flex items-center space-x-2">
-                                            <span class="bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm font-semibold">チームID: {{ $team->team_id }}</span>
-                                            <span class="text-lg font-bold text-blue-600">{{ $team->name }}</span>
+                                            <a href="{{ route('teams.show', $team->id) }}" class="bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm font-semibold">チームID: {{ $team->team_id }}</a>
+                                            <a href="{{ route('teams.show', $team->id) }}" class="text-lg font-bold text-blue-600">{{ $team->name }}</a>
                                         </div>
                                         <form method="POST" action="{{ route('teams.leave') }}" onsubmit="return confirmLeaveTeam();">
                                             @csrf
@@ -48,7 +48,7 @@
                                         @foreach ($team->members as $member)
                                             <div class="flex items-center">
                                                 <div class="w-3 h-3 rounded-full" style="background-color: {{ $member->color }};"></div>
-                                                <span class="ml-2 text-sm">{{ $member->name }}</span>
+                                                <a href="{{ route('teams.show', $team->id) }}" class="ml-2 text-sm">{{ $member->name }}</a>
                                             </div>
                                         @endforeach
                                     </div>
