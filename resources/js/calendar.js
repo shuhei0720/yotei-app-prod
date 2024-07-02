@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var events = JSON.parse(calendarEl.dataset.events || '[]');
     var currentDay = null;
+    var longPressTimeout;
+    var longPressTriggered = false;
+    var longPressModalOpen = false; // 長押しモーダルが開いているかどうかを示すフラグ
+    var clickTimeThreshold = 500; // 0.5秒以上のクリックで長押しと判定
 
     function addJapaneseHolidaysToEvents(events) {
         const year = new Date().getFullYear();
@@ -57,11 +61,21 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDisplay: 'block',
         dayMaxEvents: true,
         dateClick: function(info) {
-            openDayModal(info.dateStr);
+            if (!longPressTriggered && !longPressModalOpen) {
+                console.log("Date clicked:", info.dateStr);
+                openDayModal(info.dateStr);
+            } else {
+                console.log("Long press triggered or modal open, date click ignored:", info.dateStr);
+            }
         },
         eventClick: function(info) {
-            info.jsEvent.preventDefault();
-            openEventModal(info.event);
+            if (!longPressModalOpen) {
+                info.jsEvent.preventDefault();
+                console.log("Event clicked:", info.event.title);
+                openEventModal(info.event);
+            } else {
+                console.log("Modal open, event click ignored:", info.event.title);
+            }
         },
         eventContent: function(arg) {
             let dot = `<div class="dot" style="background-color:${arg.event.extendedProps.color}; display: inline-block; margin-right: 5px;"></div>`;
@@ -96,7 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
         nowIndicator: true,
         selectable: true,
         select: function(info) {
-            openDayModal(info.startStr);
+            if (!longPressModalOpen) {
+                openDayModal(info.startStr);
+            }
         }
     });
     calendar.render();
@@ -139,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openDayModal(dateStr) {
+        console.log("openDayModal called with dateStr:", dateStr);
         currentDay = dateStr.split('T')[0];
         const dayEvents = events.filter(event => event.start.startsWith(currentDay));
         const dayEventsContainer = document.getElementById('dayEventsContainer');
@@ -172,6 +189,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function openLongPressModal(dateStr) {
+        console.log("openLongPressModal called with dateStr:", dateStr);
+        currentDay = dateStr.split('T')[0];
+        fetch('/events/user', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'error') {
+                throw new Error(data.message);
+            }
+            const pastEvents = data.events.slice(0, 5);
+            const longPressModalContainer = document.getElementById('longPressModalContainer');
+            if (longPressModalContainer) {
+                longPressModalContainer.innerHTML = '';
+
+                pastEvents.forEach(event => {
+                    const start = moment.tz(event.start_datetime, 'Asia/Tokyo').toDate();
+                    const end = event.end_datetime ? moment.tz(event.end_datetime, 'Asia/Tokyo').toDate() : null;
+                    const startTime = moment(start).format('HH:mm');
+                    const endTime = end ? moment(end).format('HH:mm') : '';
+                    const timeRange = end ? `${startTime} - ${endTime}` : startTime;
+                    const allDay = event.all_day ? '終日' : timeRange;
+
+                    const eventElement = document.createElement('div');
+                    eventElement.classList.add('day-event', 'bg-gray-100', 'p-2', 'mb-2', 'rounded');
+                    eventElement.innerHTML = `<strong>${event.name}</strong> (${allDay})`;
+                    longPressModalContainer.appendChild(eventElement);
+                });
+
+                document.getElementById('longPressModalDate').innerText = moment.tz(currentDay, 'Asia/Tokyo').format('YYYY/MM/DD');
+                document.getElementById('longPressModal').classList.remove('hidden');
+                document.getElementById('calendar-overlay').classList.remove('hidden');
+                longPressModalOpen = true; // モーダルが開いたことを記録
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching past events:', error);
+        });
+    }
+
+    document.getElementById('calendar').addEventListener('mousedown', function(e) {
+        longPressTriggered = false;
+        const targetDate = e.target.closest('.fc-daygrid-day-frame')?.parentElement?.getAttribute('data-date');
+        longPressTimeout = setTimeout(function() {
+            longPressTriggered = true;
+            console.log("Long press detected");
+            if (targetDate) {
+                openLongPressModal(targetDate);
+            }
+        }, clickTimeThreshold);
+    });
+
+    document.getElementById('calendar').addEventListener('mouseup', function(e) {
+        clearTimeout(longPressTimeout);
+        if (!longPressTriggered && !longPressModalOpen) {
+            console.log("Short press detected");
+            const clickedDate = e.target.closest('.fc-daygrid-day-frame')?.parentElement?.getAttribute('data-date');
+            if (clickedDate) {
+                openDayModal(clickedDate);
+            }
+        } else if (longPressTriggered) {
+            console.log("Long press ended");
+        }
+        longPressTriggered = false; // フラグをリセット
+    });
+
+    document.getElementById('calendar').addEventListener('mouseleave', function(e) {
+        clearTimeout(longPressTimeout);
+        console.log("Mouse left calendar area, long press canceled");
+    });
+
     function openModal(dateStr = null) {
         console.log("openModal called with dateStr:", dateStr);
         const now = dateStr ? moment.tz(dateStr, 'Asia/Tokyo').toDate() : moment.tz('Asia/Tokyo').toDate();
@@ -190,6 +283,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openEventModal(event) {
+        if (longPressModalOpen) return; // 長押しモーダルが開いている場合は何もしない
+
         const start = moment.tz(event.start, 'Asia/Tokyo').toDate();
         const end = event.end ? moment.tz(event.end, 'Asia/Tokyo').toDate() : null;
 
@@ -240,6 +335,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('eventDetailModal').classList.add('hidden');
     }
 
+    function closeLongPressModal() {
+        document.getElementById('longPressModal').classList.add('hidden');
+        document.getElementById('calendar-overlay').classList.add('hidden');
+        longPressModalOpen = false; // モーダルが閉じたことを記録
+    }
+
     document.getElementById('all_day').addEventListener('change', function() {
         const startInput = document.getElementById('start_datetime');
         const endInput = document.getElementById('end_datetime');
@@ -282,4 +383,5 @@ document.addEventListener('DOMContentLoaded', function() {
     window.closeDayModal = closeDayModal;
     window.closeModal = closeModal;
     window.closeEventModal = closeEventModal;
+    window.closeLongPressModal = closeLongPressModal;
 });

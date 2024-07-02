@@ -129,6 +129,16 @@
         </div>
     </div>
 
+    <div id="longPressModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 hidden z-50 p-4">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+            <h2 class="text-xl font-bold mb-4">過去のイベント <span id="longPressModalDate"></span></h2>
+            <div id="longPressModalContainer" class="mb-4"></div>
+            <div class="flex justify-end">
+                <button type="button" onclick="closeLongPressModal()" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">閉じる</button>
+            </div>
+        </div>
+    </div>
+
     <datalist id="event-names"></datalist>
 
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/calendar.js'])
@@ -312,6 +322,11 @@
 
     function closeEventModal() {
         document.getElementById('eventDetailModal').classList.add('hidden');
+    }
+
+    function closeLongPressModal() {
+        document.getElementById('longPressModal').classList.add('hidden');
+        document.getElementById('calendar-overlay').classList.add('hidden');
     }
 </script>
 

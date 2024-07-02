@@ -22,7 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('teams', TeamController::class);
     Route::post('/teams/join', [TeamController::class, 'join'])->name('teams.join');
     Route::post('/teams/leave', [TeamController::class, 'leave'])->name('teams.leave');
-    Route::resource('events', EventController::class);
+    
+    Route::resource('events', EventController::class)->except(['show']);
+    Route::get('/events/user', [EventController::class, 'userEvents'])->name('events.user');
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 });
 

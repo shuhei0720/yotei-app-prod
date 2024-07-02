@@ -109,4 +109,22 @@ class EventController extends Controller
         $names = Event::select('name')->where('name', 'like', '%' . $request->q . '%')->distinct()->pluck('name');
         return response()->json($names);
     }
+
+    public function userEvents(Request $request) {
+        try {
+            $events = Event::where('user_id', Auth::id())
+                ->orderBy('start_datetime', 'desc')
+                ->distinct()
+                ->limit(30)
+                ->get(['name', 'start_datetime', 'end_datetime', 'all_day'])
+                ->unique('name')
+                ->take(5)
+                ->values();
+
+            return response()->json(['events' => $events]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching user events: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }
