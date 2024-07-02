@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
             allDay: event.allDay
         })),
         eventDisplay: 'block',
-        dayMaxEvents: true,
+        dayMaxEvents: 10,
         dateClick: function(info) {
             if (!longPressTriggered && !longPressModalOpen && !isTouch) {
                 console.log("Date clicked:", info.dateStr);
@@ -121,9 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function adjustDayCellHeights() {
         if (window.innerWidth <= 768) {
-            const dayCells = document.querySelectorAll('.fc-daygrid-day');
+            const dayCells = document.querySelectorAll('.fc-daygrid-day, .fc-timegrid-slot');
             dayCells.forEach(cell => {
-                const events = cell.querySelectorAll('.fc-daygrid-event');
+                const events = cell.querySelectorAll('.fc-daygrid-event, .fc-timegrid-event');
                 if (events.length > 4) {
                     cell.style.height = `${events.length * 20}px`;
                 } else {
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addEventToDate(event) {
         console.log("Adding event to date:", currentDay);
-        const teamId = document.getElementById('team_id')?.value; // チームIDを取得
+        const teamId = document.getElementById('team_id')?.value;
 
         if (!teamId) {
             console.error('Team ID is not found.');
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status === 'success') {
                 closeLongPressModal();
-                window.location.reload(); // ページをリロードしてカレンダーを更新
+                window.location.reload();
             } else {
                 throw new Error(data.message);
             }
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Mouse down detected");
         longPressTriggered = false;
         touchMoveDetected = false;
-        const targetDate = e.target.closest('.fc-daygrid-day')?.getAttribute('data-date');
+        const targetDate = e.target.closest('.fc-daygrid-day, .fc-timegrid-slot')?.getAttribute('data-date');
         longPressTimeout = setTimeout(function() {
             if (!touchMoveDetected) {
                 longPressTriggered = true;
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(longPressTimeout);
         if (!longPressTriggered && !longPressModalOpen) {
             console.log("Short press detected");
-            const clickedDate = e.target.closest('.fc-daygrid-day')?.getAttribute('data-date');
+            const clickedDate = e.target.closest('.fc-daygrid-day, .fc-timegrid-slot')?.getAttribute('data-date');
             if (clickedDate) {
                 openDayModal(clickedDate);
             }
@@ -326,22 +326,31 @@ document.addEventListener('DOMContentLoaded', function() {
         longPressTriggered = false;
     }
 
-    document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
-        dayCell.addEventListener('mousedown', handleMouseDown);
-        dayCell.addEventListener('mouseup', handleMouseUp);
-        dayCell.addEventListener('mouseleave', function(e) {
-            if (isTouch) return;
-            clearTimeout(longPressTimeout);
-            console.log("Mouse left calendar area, long press canceled");
+    function addEventListenersToCells() {
+        document.querySelectorAll('.fc-daygrid-day, .fc-timegrid-slot').forEach(dayCell => {
+            dayCell.addEventListener('mousedown', handleMouseDown);
+            dayCell.addEventListener('mouseup', handleMouseUp);
+            dayCell.addEventListener('mouseleave', function(e) {
+                if (isTouch) return;
+                clearTimeout(longPressTimeout);
+                console.log("Mouse left calendar area, long press canceled");
+            });
+            dayCell.addEventListener('touchstart', handleTouchStart);
+            dayCell.addEventListener('touchend', handleTouchEnd);
+            dayCell.addEventListener('touchmove', handleTouchMove);
+            dayCell.addEventListener('touchcancel', handleTouchCancel);
         });
-    });
+    }
+
+    addEventListenersToCells();
+    calendar.on('datesSet', addEventListenersToCells);
 
     function handleTouchStart(e) {
         isTouch = true;
         console.log("Touch start detected");
         longPressTriggered = false;
         touchMoveDetected = false;
-        const targetDate = e.target.closest('.fc-daygrid-day')?.getAttribute('data-date');
+        const targetDate = e.target.closest('.fc-daygrid-day, .fc-timegrid-slot')?.getAttribute('data-date');
         longPressTimeout = setTimeout(function() {
             if (!touchMoveDetected) {
                 longPressTriggered = true;
@@ -358,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(longPressTimeout);
         if (!longPressTriggered && !longPressModalOpen && !touchMoveDetected) {
             console.log("Short press detected");
-            const clickedDate = e.target.closest('.fc-daygrid-day')?.getAttribute('data-date');
+            const clickedDate = e.target.closest('.fc-daygrid-day, .fc-timegrid-slot')?.getAttribute('data-date');
             if (clickedDate) {
                 openDayModal(clickedDate);
             }
@@ -382,13 +391,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Touch canceled, long press canceled");
         isTouch = false;
     }
-
-    document.querySelectorAll('.fc-daygrid-day').forEach(dayCell => {
-        dayCell.addEventListener('touchstart', handleTouchStart);
-        dayCell.addEventListener('touchend', handleTouchEnd);
-        dayCell.addEventListener('touchmove', handleTouchMove);
-        dayCell.addEventListener('touchcancel', handleTouchCancel);
-    });
 
     function openModal(dateStr = null) {
         console.log("openModal called with dateStr:", dateStr);

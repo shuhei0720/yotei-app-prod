@@ -28,7 +28,7 @@
                     </div>
 
                     <div class="mt-8">
-                        <h3 class="font-semibold text-lg text-gray-800 leading-tight">所属しているチーム</h3>
+                        <h3 class="font-semibold text-lg text-gray-800 leading-tight">所属チーム</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                             @foreach (Auth::user()->teams as $team)
                                 <div class="block bg-gray-100 p-4 rounded-lg shadow hover:bg-gray-200 transition relative">
