@@ -29,4 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 });
 
+Route::view('/privacy-policy', 'privacy')->name('privacy.policy');
+Route::view('/terms-of-service', 'terms')->name('terms.service');
+
 require __DIR__.'/auth.php';

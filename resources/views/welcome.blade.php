@@ -64,6 +64,27 @@
         .button.register:hover {
             background-color: #4cae4c;
         }
+        .navbar-nav {
+            margin-top: 40px;
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-item {
+            display: block;
+        }
+        .nav-link {
+            color: #4a90e2;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #357ab7;
+        }
     </style>
 </head>
 <body>
@@ -74,6 +95,14 @@
             <a href="{{ route('login') }}" class="button">ログイン</a>
             <a href="{{ route('register') }}" class="button register">新規登録</a>
         </div>
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('privacy.policy') }}">プライバシーポリシー</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('terms.service') }}">利用規約</a>
+            </li>
+        </ul>
     </div>
 
     <script>
