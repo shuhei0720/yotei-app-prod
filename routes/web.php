@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('events', EventController::class)->except(['show']);
     Route::get('/events/user', [EventController::class, 'userEvents'])->name('events.user');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 });
 

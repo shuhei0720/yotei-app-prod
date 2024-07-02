@@ -14,6 +14,7 @@
                 <div class="p-4 bg-white border-b border-gray-200 relative">
                     <div id="calendar" class="calendar-container" data-events="{{ json_encode($events) }}"></div>
                     <div id="calendar-overlay" class="hidden"></div>
+                    <input type="hidden" id="team_id" value="{{ $team->id }}">
                 </div>
             </div>
         </div>
@@ -120,10 +121,14 @@
 
     <div id="dayModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 hidden z-50 p-4">
         <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg">
-            <h2 class="text-xl font-bold mb-4">予定一覧 <span id="dayModalDate"></span></h2>
-            <div id="dayEventsContainer" class="mb-4"></div>
-            <div class="flex justify-end">
-                <button type="button" onclick="closeDayModal()" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">閉じる</button>
+            <div class="modal-header dayModal-header">
+                <h2 class="modal-title">予定一覧 <span id="dayModalDate"></span></h2>
+            </div>
+            <div class="modal-body">
+                <div id="dayEventsContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeDayModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">閉じる</button>
                 <button type="button" id="openAddModalButton" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">追加</button>
             </div>
         </div>
@@ -131,10 +136,14 @@
 
     <div id="longPressModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 hidden z-50 p-4">
         <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg">
-            <h2 class="text-xl font-bold mb-4">過去のイベント <span id="longPressModalDate"></span></h2>
-            <div id="longPressModalContainer" class="mb-4"></div>
-            <div class="flex justify-end">
-                <button type="button" onclick="closeLongPressModal()" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">閉じる</button>
+            <div class="modal-header longPressModal-header">
+                <h2 class="modal-title">過去の予定から登録 <span id="longPressModalDate"></span></h2>
+            </div>
+            <div class="modal-body">
+                <div id="longPressModalContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeLongPressModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">閉じる</button>
             </div>
         </div>
     </div>
@@ -333,5 +342,59 @@
 <style>
     #editEventModal {
         z-index: 10000; /* 最前面に表示 */
+    }
+    .modal-header {
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center; /* Align items vertically */
+        justify-content: space-between; /* Add space between title and date */
+    }
+
+    .dayModal-header {
+        background-color: #f0f8ff;
+        color: #000080;
+    }
+
+    .longPressModal-header {
+        background-color: #ffe4e1;
+        color: #b22222;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        padding: 0.5rem 1rem;
+        text-align: right;
+    }
+
+    .modal-footer button {
+        margin-left: 0.5rem;
+    }
+
+    .day-event, .past-event {
+        margin-bottom: 0.5rem; /* Ensure some space between events */
+        padding: 0.75rem; /* Adjust padding for better touch target */
+        line-height: 1.3; /* Adjust line height for better readability */
+        background-color: #f9f9f9; /* Add background color for better visibility */
+        border-radius: 0.25rem; /* Round the corners for a modern look */
+        border: 1px solid #ddd; /* Add border for separation */
+        cursor: pointer; /* Change cursor to pointer for better UX */
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 0; /* Remove bottom margin */
+    }
+
+    .modal-title span {
+        font-size: 1rem;
+        font-weight: normal;
+        color: #555;
+        margin-left: 1rem;
     }
 </style>
