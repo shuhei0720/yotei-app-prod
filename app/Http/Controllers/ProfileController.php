@@ -54,10 +54,17 @@ class ProfileController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+            'username' => ['required', 'string'],
         ]);
 
         $user = $request->user();
+
+        // ユーザー名が一致するか確認
+        if ($request->input('username') !== $user->name) {
+            return back()->withErrors([
+                'username' => __('ユーザー名が一致しません。'),
+            ]);
+        }
 
         Auth::logout();
 

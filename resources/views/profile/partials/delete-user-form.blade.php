@@ -24,21 +24,21 @@
             </h2>
 
             <p class="mt-1 text-sm text-gray-600">
-                {{ __('アカウントを削除すると、そのすべてのリソースとデータは永久に削除されます。アカウントを永久に削除することを確認するために、パスワードを入力してください。') }}
+                {{ __('アカウントを削除すると、そのすべてのリソースとデータは永久に削除されます。アカウントを永久に削除することを確認するために、ユーザー名を入力してください。') }}
             </p>
 
             <div class="mt-6">
-                <x-input-label for="password" value="{{ __('パスワード') }}" class="sr-only" />
+                <x-input-label for="username" value="{{ __('ユーザー名') }}" class="sr-only" />
 
                 <x-text-input
-                    id="password"
-                    name="password"
-                    type="password"
+                    id="username"
+                    name="username"
+                    type="text"
                     class="mt-1 block w-3/4"
-                    placeholder="{{ __('パスワード') }}"
+                    placeholder="{{ __('ユーザー名') }}"
                 />
 
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+                <x-input-error :messages="$errors->userDeletion->get('username')" class="mt-2" />
             </div>
 
             <div class="mt-6 flex justify-end">

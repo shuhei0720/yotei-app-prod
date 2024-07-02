@@ -5,6 +5,7 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LineController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,5 +32,7 @@ Route::middleware('auth')->group(function () {
 
 Route::view('/privacy-policy', 'privacy')->name('privacy.policy');
 Route::view('/terms-of-service', 'terms')->name('terms.service');
+Route::get('auth/line', [LineController::class, 'redirectToProvider'])->name('auth.line');
+Route::get('auth/line/callback', [LineController::class, 'handleProviderCallback']);
 
 require __DIR__.'/auth.php';
