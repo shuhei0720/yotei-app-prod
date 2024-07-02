@@ -36,8 +36,14 @@ class User extends Authenticatable
     }
 
     public function generateColor() {
-        $colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF33A8', '#FFD700', '#FF4500', '#ADFF2F', '#7FFF00', '#7B68EE'];
-        return $colors[array_rand($colors)];
+        return $this->generateLightColor();
+    }
+
+    private function generateLightColor() {
+        $red = rand(100, 255);
+        $green = rand(100, 255);
+        $blue = rand(100, 255);
+        return sprintf("#%02X%02X%02X", $red, $green, $blue);
     }
 
     public function teams() {

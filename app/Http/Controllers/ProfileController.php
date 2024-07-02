@@ -26,13 +26,24 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validatedData = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // 色のバリデーションを追加
+        $request->validate([
+            'color' => 'required|string|size:7|regex:/^#[0-9A-Fa-f]{6}$/',
+        ]);
+
+        $user = $request->user();
+        $user->fill($validatedData);
+
+        // 色の更新を追加
+        $user->color = $request->input('color');
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

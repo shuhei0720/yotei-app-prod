@@ -47,6 +47,12 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="color" :value="__('ユーザーカラー')" />
+            <input id="color" name="color" type="color" class="mt-1 block w-24 h-10" value="{{ old('color', $user->color) }}" required />
+            <x-input-error class="mt-2" :messages="$errors->get('color')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('保存') }}</x-primary-button>
 

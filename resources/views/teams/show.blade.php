@@ -55,7 +55,11 @@
     </div>
 
     <div id="eventDetailModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 hidden z-50 p-4">
-        <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg relative">
+            <div class="absolute top-10 right-4 flex space-x-2">
+                <button type="button" onclick="openEditModal()" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">編集</button>
+                <button type="button" onclick="confirmDeleteEvent()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">削除</button>
+            </div>
             <h2 class="text-xl font-bold mb-4">イベントの詳細</h2>
             <p class="text-lg mb-2"><strong>イベント名:</strong> <span id="eventDetailName"></span></p>
             <p class="text-lg mb-2"><strong>開始日時:</strong> <span id="eventDetailStart" data-datetime=""></span></p>
@@ -77,8 +81,6 @@
             </form>
             <div class="flex justify-end mt-4">
                 <button type="button" onclick="closeEventModal()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">閉じる</button>
-                <button type="button" onclick="openEditModal()" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">編集</button>
-                <button type="button" onclick="deleteEvent()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">削除</button>
             </div>
         </div>
     </div>
@@ -299,6 +301,12 @@
         document.getElementById('edit_event_id').value = document.getElementById('commentEventId').value;
     }
 
+    function confirmDeleteEvent() {
+        if (confirm("予定を削除しますか？")) {
+            deleteEvent();
+        }
+    }
+
     function deleteEvent() {
         const eventId = document.getElementById('commentEventId').value;
         fetch("{{ route('events.destroy', '') }}/" + eventId, {
@@ -396,5 +404,10 @@
         font-weight: normal;
         color: #555;
         margin-left: 1rem;
+    }
+
+    #eventDetailModal .absolute {
+        top: 2.5rem;
+        right: 1rem;
     }
 </style>

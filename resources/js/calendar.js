@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (end) {
             document.getElementById('eventDetailEnd').setAttribute('data-datetime', moment(end).format('YYYY-MM-DDTHH:mm'));
         }
-        document.getElementById('eventDetailMemo').innerText = event.extendedProps.memo || 'No memo';
+        document.getElementById('eventDetailMemo').innerText = event.extendedProps.memo || 'なし';
 
         const createdBy = event.extendedProps.created_by || 'なし';
         const createdByColor = event.extendedProps.created_by_color || 'transparent';
