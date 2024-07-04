@@ -41,7 +41,7 @@ class User extends Authenticatable
                 $user->line_notifications = true;
             }
             if (is_null($user->notification_time)) {
-                $user->notification_time = '20:00:00';
+                $user->notification_time = '21:00:00';
             }
         });
     }
