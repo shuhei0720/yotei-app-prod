@@ -28,16 +28,20 @@ class ProfileController extends Controller
     {
         $validatedData = $request->validated();
 
-        // 色のバリデーションを追加
+        // 色と通知設定のバリデーションを追加
         $request->validate([
             'color' => 'required|string|size:7|regex:/^#[0-9A-Fa-f]{6}$/',
+            'line_notifications' => 'nullable|string',
+            'notification_time' => 'required|date_format:H:i',
         ]);
 
         $user = $request->user();
         $user->fill($validatedData);
 
-        // 色の更新を追加
+        // 色と通知設定の更新を追加
         $user->color = $request->input('color');
+        $user->line_notifications = filter_var($request->input('line_notifications', false), FILTER_VALIDATE_BOOLEAN);
+        $user->notification_time = $request->input('notification_time');
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;

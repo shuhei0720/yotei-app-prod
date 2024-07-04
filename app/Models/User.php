@@ -17,6 +17,8 @@ class User extends Authenticatable
         'password',
         'line_id',
         'color',
+        'line_notifications',
+        'notification_time',
     ];
 
     protected $hidden = [
@@ -26,6 +28,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'line_notifications' => 'boolean',
     ];
 
     protected static function boot() {
@@ -33,6 +36,12 @@ class User extends Authenticatable
 
         static::creating(function ($user) {
             $user->color = $user->generateColor();
+            if (is_null($user->line_notifications)) {
+                $user->line_notifications = true;
+            }
+            if (is_null($user->notification_time)) {
+                $user->notification_time = '20:00:00';
+            }
         });
     }
 

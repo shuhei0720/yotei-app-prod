@@ -36,7 +36,7 @@ class EventController extends Controller
 
             Event::create([
                 'team_id' => $request->team_id,
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id(), // 作成者のIDを保存
                 'name' => $request->name,
                 'start_datetime' => $startDatetime,
                 'end_datetime' => $endDatetime,

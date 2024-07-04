@@ -53,6 +53,18 @@
             <x-input-error class="mt-2" :messages="$errors->get('color')" />
         </div>
 
+        <div>
+            <x-input-label for="line_notifications" :value="__('LINE通知を有効にする')" />
+            <input id="line_notifications" name="line_notifications" type="checkbox" class="mt-1 block" {{ old('line_notifications', $user->line_notifications) ? 'checked' : '' }} />
+            <x-input-error class="mt-2" :messages="$errors->get('line_notifications')" />
+        </div>
+
+        <div>
+            <x-input-label for="notification_time" :value="__('通知時間')" />
+            <input id="notification_time" name="notification_time" type="time" class="mt-1 block w-full" value="{{ old('notification_time', $user->notification_time ? date('H:i', strtotime($user->notification_time)) : '20:00') }}" required />
+            <x-input-error class="mt-2" :messages="$errors->get('notification_time')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('保存') }}</x-primary-button>
 
