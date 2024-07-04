@@ -1,6 +1,6 @@
 {
-    "name": "yoteiapp",
-    "short_name": "yoteiapp",
+    "name": "予定アプリ",
+    "short_name": "予定アプリ",
     "description": "友達や家族と予定を共有できるアプリ",
     "start_url": "/",
     "display": "browser",

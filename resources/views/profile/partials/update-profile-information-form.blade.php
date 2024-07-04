@@ -54,7 +54,7 @@
         </div>
 
         <div>
-            <x-input-label for="line_notifications" :value="__('LINE通知を有効にする')" />
+            <x-input-label for="line_notifications" :value="__('LINE通知を有効にする(明日の予定をお知らせします)')" />
             <input id="line_notifications" name="line_notifications" type="checkbox" class="mt-1 block" {{ old('line_notifications', $user->line_notifications) ? 'checked' : '' }} />
             <x-input-error class="mt-2" :messages="$errors->get('line_notifications')" />
         </div>

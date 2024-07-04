@@ -12,7 +12,7 @@ if (!function_exists('sendLineNotification')) {
         $nickname = $user->name;
         $tomorrow = Carbon::now()->addDay()->format('n月j日'); // 明日の日付をフォーマット（0を省く）
         $message = "{$nickname}さん\n";
-        $message .= "こんばんわ！予定アプリです✨\n";
+        $message .= "こんばんは！予定アプリです✨\n";
         $message .= "明日({$tomorrow})の予定を連絡します🌙😉\n\n";
 
         $teams = $user->teams;
