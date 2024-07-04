@@ -6,6 +6,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LineController;
+use App\Http\Controllers\TutorialController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,5 +35,7 @@ Route::view('/privacy-policy', 'privacy')->name('privacy.policy');
 Route::view('/terms-of-service', 'terms')->name('terms.service');
 Route::get('auth/line', [LineController::class, 'redirectToProvider'])->name('auth.line');
 Route::get('auth/line/callback', [LineController::class, 'handleProviderCallback']);
+Route::get('/tutorial', [TutorialController::class, 'show'])->name('tutorial.show')->middleware('auth');
+Route::post('/tutorial/complete', [TutorialController::class, 'complete'])->name('tutorial.complete')->middleware('auth');
 
 require __DIR__.'/auth.php';

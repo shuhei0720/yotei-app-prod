@@ -69,6 +69,10 @@ class LineController extends Controller
         $returnTo = $state['return_to'] ?? '/dashboard';
         $intended = $state['intended'] ?? '/dashboard';
 
+        if ($user->is_first_login) {
+            return redirect('/tutorial');
+        }
+
         return redirect($returnTo . '#callback=' . urlencode($intended));
     }
 }

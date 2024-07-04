@@ -19,6 +19,7 @@ class User extends Authenticatable
         'color',
         'line_notifications',
         'notification_time',
+        'is_first_login', // 追加
     ];
 
     protected $hidden = [
