@@ -18,7 +18,12 @@ class LineController extends Controller
      */
     public function redirectToProvider()
     {
-        return Socialite::driver('line')->redirect();
+        $state = base64_encode(json_encode([
+            'return_to' => url()->previous(),
+            'intended' => '/dashboard'
+        ]));
+        \Log::debug('Redirecting to LINE with state: ' . $state);
+        return Socialite::driver('line')->with(['state' => $state])->redirect();
     }
 
     /**
@@ -29,36 +34,41 @@ class LineController extends Controller
     public function handleProviderCallback()
     {
         try {
-            $lineUser = Socialite::driver('line')->user();
+            $lineUser = Socialite::driver('line')->stateless()->user();
+            \Log::debug('LINE user retrieved: ' . $lineUser->id);
         } catch (\Exception $e) {
+            \Log::error('Error retrieving LINE user: ' . $e->getMessage());
             return redirect('/')->with('error', 'LINEログインに失敗しました。');
         }
 
-        // LINE IDでユーザーを検索
         $user = User::where('line_id', $lineUser->id)->first();
 
         if (!$user) {
-            // メールアドレスでユーザーを検索
             $user = User::where('email', $lineUser->email)->first();
 
             if ($user) {
-                // ユーザーが存在する場合、line_idを更新
                 $user->line_id = $lineUser->id;
                 $user->save();
+                \Log::debug('Existing user updated: ' . $user->id);
             } else {
-                // ユーザーが存在しない場合、新規ユーザーを作成
                 $user = User::create([
                     'name' => $lineUser->name,
                     'email' => $lineUser->email ?? "{$lineUser->id}@line.com",
-                    'password' => Hash::make(Str::random(24)), // 仮のパスワード
+                    'password' => Hash::make(Str::random(24)),
                     'line_id' => $lineUser->id,
                 ]);
+                \Log::debug('New user created: ' . $user->id);
             }
         }
 
-        // ログインさせる
         Auth::login($user, true);
+        \Log::debug('User logged in: ' . $user->id);
 
-        return redirect('/dashboard');
+        $state = json_decode(base64_decode(request()->input('state')), true);
+        \Log::debug('Decoded state: ' . print_r($state, true));
+        $returnTo = $state['return_to'] ?? '/dashboard';
+        $intended = $state['intended'] ?? '/dashboard';
+
+        return redirect($returnTo . '#callback=' . urlencode($intended));
     }
 }

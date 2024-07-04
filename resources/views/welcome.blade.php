@@ -6,20 +6,12 @@
     <title>Yoteiapp</title>
     @vite('resources/css/app.css')
 
-    <!-- Manifest -->
     <link rel="manifest" href="/manifest.json">
-
-    <!-- Theme Color -->
     <meta name="theme-color" content="#000000">
-
-    <!-- Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="/path/to/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/path/to/icon-512x512.png">
-
-    <!-- Custom Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Raleway:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <!-- Custom CSS -->
     <style>
         body {
             background-color: #f0f4f8;
@@ -34,7 +26,7 @@
         .welcome-text {
             font-size: 3rem;
             font-weight: bold;
-            margin-bottom: 40px; /* Increase margin bottom for more space */
+            margin-bottom: 40px;
             color: #4a90e2;
             font-family: 'Pacifico', cursive;
         }
@@ -91,12 +83,8 @@
     <div class="min-h-screen flex flex-col items-center justify-center text-center p-4">
         <img src="/path/to/icon-192x192.png" alt="App Icon" class="logo">
         <div class="welcome-text">Welcome to <span>Yoteiapp</span></div>
-        <div class="button-container">
-            <a href="{{ route('login') }}" class="button">ログイン</a>
-            <a href="{{ route('register') }}" class="button register">新規登録</a>
-        </div>
         <div class="flex items-center justify-end mt-4">
-            <a href="{{ route('auth.line') }}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center transition duration-300 ease-in-out w-full">
+            <a href="{{ route('auth.line') }}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center transition duration-300 ease-in-out w-full" id="line-login">
                 <img src="{{ asset('img/line.png') }}" alt="LINE Logo" class="w-6 h-6 mr-2">
                 {{ __('LINEアカウントでログイン') }}
             </a>
@@ -121,6 +109,14 @@
                 });
             });
         }
+
+        window.addEventListener('load', function() {
+            if (window.location.hash.includes('callback=')) {
+                const intendedUrl = decodeURIComponent(window.location.hash.split('callback=')[1]);
+                window.location.hash = '';
+                window.location.href = intendedUrl;
+            }
+        });
     </script>
 </body>
 </html>
