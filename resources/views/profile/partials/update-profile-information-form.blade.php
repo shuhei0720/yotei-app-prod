@@ -79,4 +79,21 @@
             @endif
         </div>
     </form>
+
+    <div class="mt-6">
+        <h2 class="text-lg font-medium text-gray-900">
+            {{ __('※通知を受け取るには、LINE公式アカウントの友達追加が必要です') }}
+        </h2>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ __("以下のリンクをクリックして公式LINEアカウントを友達追加してください。") }}
+        </p>
+        <div class="mt-4">
+            <a href="https://line.me/R/ti/p/%40918xvqxc" target="_blank" class="text-indigo-600 hover:text-indigo-900 underline">
+                {{ __('友達追加はこちら') }}
+            </a>
+        </div>
+        <div class="mt-4">
+            <img src="https://qr-official.line.me/sid/L/918xvqxc.png" alt="友達追加用QRコード" class="w-32 h-32">
+        </div>
+    </div>
 </section>
