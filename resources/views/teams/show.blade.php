@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-start items-center flex-wrap header">
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-left flex items-center space-x-2">
+        <div class="flex justify-center items-center flex-wrap header">
+            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center flex items-center space-x-2">
                 <span class="bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm font-semibold">チームID: {{ $team->team_id }}</span>
                 <span class="text-lg font-bold text-blue-600">{{ $team->name }}</span>
             </h2>
@@ -65,9 +65,9 @@
             <p class="text-lg mb-2"><strong>開始日時:</strong> <span id="eventDetailStart" data-datetime=""></span></p>
             <p class="text-lg mb-2"><strong>終了日時:</strong> <span id="eventDetailEnd" data-datetime=""></span></p>
             <p class="text-lg mb-2"><strong>作成者:</strong> <span id="eventDetailCreatedBy"></span></p>
-            <p class="text-lg mb-2"><strong>メモ:</strong> <span id="eventDetailMemo"></span></p>
+            <p class="text-lg mb-2"><strong>メモ:</strong> <span id="eventDetailMemo" class="max-h-24 overflow-y-auto block"></span></p> <!-- ここにスクロールと高さ制限を追加 -->
             <h3 class="text-lg font-bold mt-4 mb-2">コメント</h3>
-            <div id="eventDetailComments" class="mb-4 space-y-2"></div>
+            <div id="eventDetailComments" class="mb-4 space-y-2 max-h-28 overflow-y-auto"></div> <!-- ここにスクロールと高さ制限を追加 -->
             <form id="commentForm" method="POST" action="{{ route('comments.store') }}">
                 @csrf
                 <input type="hidden" name="event_id" id="commentEventId">
@@ -126,7 +126,7 @@
             <div class="modal-header dayModal-header">
                 <h2 class="modal-title">予定一覧 <span id="dayModalDate"></span></h2>
             </div>
-            <div class="modal-body">
+            <div class="modal-body max-h-96 overflow-y-auto"> <!-- ここにスクロールと高さ制限を追加 -->
                 <div id="dayEventsContainer"></div>
             </div>
             <div class="modal-footer">
@@ -141,7 +141,7 @@
             <div class="modal-header longPressModal-header">
                 <h2 class="modal-title">過去の予定から登録 <span id="longPressModalDate"></span></h2>
             </div>
-            <div class="modal-body">
+            <div class="modal-body max-h-96 overflow-y-auto"> <!-- ここにスクロールと高さ制限を追加 -->
                 <div id="longPressModalContainer"></div>
             </div>
             <div class="modal-footer">
