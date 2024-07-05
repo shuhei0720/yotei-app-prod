@@ -16,9 +16,10 @@ if (!function_exists('sendLineNotification')) {
         $message .= "明日({$tomorrow})の予定を連絡します🌙😉\n\n";
 
         $teams = $user->teams;
-        foreach ($teams as $team) {
-            $message .= "{$team->name}🏠\n\n";
+        $hasEvents = false; // 予定があるかどうかのフラグ
 
+        foreach ($teams as $team) {
+            $teamMessage = "{$team->name}🏠\n\n";
             $events = $team->events->where('start_datetime', '>=', Carbon::now()->addDay()->startOfDay())
                                   ->where('start_datetime', '<', Carbon::now()->addDays(2)->startOfDay());
 
@@ -31,15 +32,19 @@ if (!function_exists('sendLineNotification')) {
                     $startDatetime = Carbon::parse($event->start_datetime)->format('H:i');
                     $timeDisplay = "({$startDatetime})";
                 }
-                $message .= " ・{$creatorName}: {$event->name} {$timeDisplay}\n";
+                $teamMessage .= " ・{$creatorName}: {$event->name} {$timeDisplay}\n";
                 $index++;
             }
-            $message .= "\n";
+
+            if ($events->isNotEmpty()) {
+                $hasEvents = true; // 予定があることをフラグに設定
+                $message .= $teamMessage . "\n";
+            }
         }
 
         $message .= "本日もお疲れ様でした🌙😁✨";
 
-        if (!empty($message)) {
+        if ($hasEvents && !empty($message)) {
             $lineAccessToken = env('LINE_CHANNEL_ACCESS_TOKEN');
 
             $response = Http::withHeaders([
