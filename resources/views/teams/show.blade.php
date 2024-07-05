@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-center items-center flex-wrap header">
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center flex items-center space-x-2">
+        <div class="flex justify-start items-center flex-wrap header">
+            <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-left flex items-center space-x-2">
                 <span class="bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm font-semibold">チームID: {{ $team->team_id }}</span>
                 <span class="text-lg font-bold text-blue-600">{{ $team->name }}</span>
             </h2>
