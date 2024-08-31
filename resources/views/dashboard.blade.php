@@ -13,7 +13,7 @@
                         <form method="POST" action="{{ route('teams.store') }}" class="w-full sm:w-auto">
                             @csrf
                             <div class="flex flex-col sm:flex-row items-stretch sm:items-center">
-                                <input type="text" name="name" placeholder="チーム名" class="border p-2 flex-grow sm:flex-grow-0 sm:w-auto mb-2 sm:mb-0 sm:mr-2">
+                                <input type="text" name="name" placeholder="チーム名を入力してチームを新規作成" class="border p-2 flex-grow sm:flex-grow-0 sm:w-auto mb-2 sm:mb-0 sm:mr-2">
                                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">チームを作成</button>
                             </div>
                         </form>
@@ -21,7 +21,7 @@
                         <form method="POST" action="{{ route('teams.join') }}" class="w-full sm:w-auto">
                             @csrf
                             <div class="flex flex-col sm:flex-row items-stretch sm:items-center">
-                                <input type="text" name="team_id" placeholder="チームID" class="border p-2 flex-grow sm:flex-grow-0 sm:w-auto mb-2 sm:mb-0 sm:mr-2">
+                                <input type="text" name="team_id" placeholder="チームIDを入力してチームに参加" class="border p-2 flex-grow sm:flex-grow-0 sm:w-auto mb-2 sm:mb-0 sm:mr-2">
                                 <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-md">チームに参加</button>
                             </div>
                         </form>
