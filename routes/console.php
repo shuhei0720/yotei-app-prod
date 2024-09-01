@@ -42,7 +42,9 @@ if (!function_exists('sendLineNotification')) {
             }
         }
 
-        $message .= "本日もお疲れ様でした🌙😁✨";
+        $message .= "[アプリで確認する]👇\n(https://shuappweb.com)\n\n";
+
+        $message .= "本日もお疲れ様でした🌙😁✨\n";
 
         if ($hasEvents && !empty($message)) {
             $lineAccessToken = env('LINE_CHANNEL_ACCESS_TOKEN');
