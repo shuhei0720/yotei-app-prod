@@ -9,6 +9,12 @@ use App\Http\Controllers\Auth\LineController;
 use App\Http\Controllers\TutorialController;
 
 Route::get('/', function () {
+    // ログインしている場合は `dashboard` へリダイレクト
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+
+    // ログインしていない場合は `welcome` を表示
     return view('welcome');
 });
 
