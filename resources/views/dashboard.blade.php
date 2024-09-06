@@ -39,9 +39,9 @@
                                                 <span class="text-lg font-bold text-blue-600">{{ $team->name }}</span>
                                             </div>
                                         </div>
-                                        <div class="mt-2 flex items-center space-x-2">
+                                        <div class="mt-2 flex flex-wrap gap-2 items-center">
                                             @foreach ($team->members as $member)
-                                                <div class="flex items-center">
+                                                <div class="flex items-center whitespace-nowrap">
                                                     <div class="w-3 h-3 rounded-full" style="background-color: {{ $member->color }};"></div>
                                                     <span class="ml-2 text-sm">{{ $member->name }}</span>
                                                 </div>
