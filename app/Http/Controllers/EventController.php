@@ -112,16 +112,30 @@ class EventController extends Controller
 
     public function userEvents(Request $request) {
         try {
+            // ユーザーのイベントを取得
             $events = Event::where('user_id', Auth::id())
                 ->orderBy('start_datetime', 'desc')
-                ->distinct()
                 ->limit(30)
-                ->get(['name', 'start_datetime', 'end_datetime', 'all_day'])
-                ->unique('name')
-                ->take(5)
-                ->values();
-
-            return response()->json(['events' => $events]);
+                ->get(['name', 'start_datetime', 'end_datetime', 'all_day']);
+    
+            // 同じ名前のイベントをグループ化し、各グループ内で一番新しいものを取得
+            $groupedEvents = $events->groupBy('name');
+            $latestEvents = $groupedEvents->map(function ($events) {
+                return $events->sortByDesc('start_datetime')->first();
+            });
+    
+            // 出現回数が多い順に並べ、上位5件を取得
+            $topEventNames = $latestEvents->sortByDesc(function ($event) use ($groupedEvents) {
+                return $groupedEvents[$event->name]->count();
+            })->take(5)->pluck('name');
+    
+            // 上位5件のイベント名を使って元のイベントをフィルタリング
+            $filteredEvents = $events->filter(function ($event) use ($topEventNames) {
+                return $topEventNames->contains($event->name);
+            })->unique('name')->values();
+    
+            // フィルタリングされたイベントを返す
+            return response()->json(['events' => $filteredEvents]);
         } catch (\Exception $e) {
             Log::error('Error fetching user events: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
