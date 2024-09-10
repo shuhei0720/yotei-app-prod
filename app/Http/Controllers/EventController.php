@@ -115,7 +115,7 @@ class EventController extends Controller
             // ユーザーのイベントを取得
             $events = Event::where('user_id', Auth::id())
                 ->orderBy('start_datetime', 'desc')
-                ->limit(30)
+                ->limit(100)
                 ->get(['name', 'start_datetime', 'end_datetime', 'all_day']);
     
             // 同じ名前のイベントをグループ化し、各グループ内で一番新しいものを取得
